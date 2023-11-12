@@ -1,9 +1,10 @@
 import os
 import tempfile
-from typing import Optional, Set
+from typing import Optional, Set, Sequence
 
 import docker
 from docker.errors import ContainerError
+from docker.models.images import Image
 from halo import Halo
 
 from .base import CodeExecutor
@@ -15,13 +16,13 @@ class DockerCodeExecutor(CodeExecutor):
                  base_image: str = 'python:3.11-slim',
                  default_dependencies: Optional[Set[str]] = None,
                  spinner: Optional[Halo] = None):
-        self.client = client or docker.from_env()
+        self.client = client or docker.from_env()  # type: ignore
         self.image_tag = image_tag
         self.base_image = base_image
         self.default_dependencies = default_dependencies or {'requests', 'pytest'}
         self.spinner = spinner
 
-    def create_dockerfile(self, python_code: str, dependencies: Optional[Set[str]] = None):
+    def create_dockerfile(self, python_code: str, dependencies: Optional[Set[str]] = None) -> str:
         run_commands = [f'RUN pip install {package} --trusted-host pypi.org --trusted-host files.pythonhosted.org' for
                         package in dependencies or []]
         run_commands_str = '\n'.join(run_commands)
@@ -39,7 +40,7 @@ class DockerCodeExecutor(CodeExecutor):
 
         return dockerfile
 
-    def build_image_with_code(self, python_code: str, dependencies: Optional[Set[str]] = None):
+    def build_image_with_code(self, python_code: str, dependencies: Optional[Set[str]] = None) -> Image:
         spinner_text = None
         if self.spinner is not None:
             spinner_text = self.spinner.text
@@ -70,10 +71,10 @@ class DockerCodeExecutor(CodeExecutor):
 
         return image
 
-    def execute(self, code: str, dependencies: Optional[Set[str]] = None) -> str:
+    def execute(self, code: str, dependencies: Optional[Sequence[str]] = None) -> str:
         try:
             # Ensure the image is built before execution
-            self.build_image_with_code(code, dependencies=dependencies or self.default_dependencies)
+            self.build_image_with_code(code, dependencies=set(dependencies or self.default_dependencies))
         except Exception as e:
             return f'Failed to build Docker image (did not run code yet): {e}'
 
@@ -90,9 +91,11 @@ class DockerCodeExecutor(CodeExecutor):
                 stderr=True,
                 detach=False
             )
-            return container.decode('utf-8')
+            res: str = container.decode('utf-8')
         except ContainerError as e:
-            return e.stderr.decode('utf-8')
-        finally:
-            if self.spinner is not None:
-                self.spinner.stop_and_persist(symbol='🐳', text='Code finished executing.')
+            res = e.stderr.decode('utf-8')
+
+        if self.spinner is not None:
+            self.spinner.stop_and_persist(symbol='🐳', text='Code finished executing.')
+
+        return res

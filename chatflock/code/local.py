@@ -2,7 +2,7 @@ import io
 import sys
 import traceback
 import subprocess
-from typing import Optional, List
+from typing import Optional, Sequence
 
 from halo import Halo
 
@@ -13,7 +13,7 @@ class LocalCodeExecutor(CodeExecutor):
     def __init__(self, spinner: Optional[Halo] = None):
         self.spinner = spinner
 
-    def execute(self, code: str, dependencies: Optional[List[str]] = None) -> str:
+    def execute(self, code: str, dependencies: Optional[Sequence[str]] = None) -> str:
         captured_output = io.StringIO()
         saved_stdout = sys.stdout
         sys.stdout = captured_output
