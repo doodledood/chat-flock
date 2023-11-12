@@ -380,7 +380,7 @@ This project is licensed under the terms of the `MIT` license. See [LICENSE](htt
 
 ```bibtex
 @misc{chat-flock,
-  author = {chat-flock},
+  author = {doodledood},
   title = {Driving Dynamic Multi-Participant Chat Interactions for AI and Human Discourse},
   year = {2023},
   publisher = {GitHub},
