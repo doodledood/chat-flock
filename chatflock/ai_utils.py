@@ -1,6 +1,6 @@
 import json
 from json import JSONDecodeError
-from typing import List, Optional, Dict, Any, TypeVar, Type
+from typing import Optional, Dict, Any, TypeVar, Type, Sequence
 
 from halo import Halo
 from langchain.chat_models.base import BaseChatModel
@@ -15,9 +15,9 @@ from chatflock.utils import fix_invalid_json
 
 def execute_chat_model_messages(
         chat_model: BaseChatModel,
-        messages: List[BaseMessage],
+        messages: Sequence[BaseMessage],
         chat_model_args: Optional[Dict[str, Any]] = None,
-        tools: Optional[List[BaseTool]] = None,
+        tools: Optional[Sequence[BaseTool]] = None,
         spinner: Optional[Halo] = None) -> str:
     chat_model_args = chat_model_args or {}
 
@@ -30,7 +30,7 @@ def execute_chat_model_messages(
 
     function_map = {tool.name: tool for tool in tools or []}
 
-    all_messages = messages.copy()
+    all_messages = list(messages).copy()
 
     last_message = chat_model.predict_messages(all_messages, **chat_model_args)
     function_call = last_message.additional_kwargs.get('function_call')
@@ -73,7 +73,7 @@ def execute_chat_model_messages(
         else:
             raise FunctionNotFoundError(function_name)
 
-    return last_message.content
+    return str(last_message.content)
 
 
 PydanticType = TypeVar('PydanticType', bound=Type[BaseModel])
@@ -81,7 +81,7 @@ PydanticType = TypeVar('PydanticType', bound=Type[BaseModel])
 
 def pydantic_to_openai_function(pydantic_type: PydanticType,
                                 function_name: Optional[str] = None,
-                                function_description: Optional[str] = None) -> Dict:
+                                function_description: Optional[str] = None) -> Dict[str, Any]:
     base_schema = pydantic_type.model_json_schema()
     del base_schema['title']
     del base_schema['description']

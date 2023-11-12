@@ -54,3 +54,10 @@ class ManageParticipantsOutputSchema(BaseModel):
         description='An updated version of the original interaction schema to better reflect how to achieve the goal.')
     updated_termination_condition: Optional[str] = Field(
         description='An updated version of the termination condition to better reflect the achievement of the goal.')
+
+
+__all__ = [
+    'IndividualParticipantToAddSchema',
+    'TeamParticipantToAddSchema',
+    'ManageParticipantsOutputSchema'
+]

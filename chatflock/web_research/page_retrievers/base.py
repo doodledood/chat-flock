@@ -1,5 +1,5 @@
 import abc
-from typing import Any, Dict
+from typing import Any
 
 
 class PageRetriever(abc.ABC):

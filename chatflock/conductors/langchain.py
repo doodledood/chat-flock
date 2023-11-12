@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, Optional, List, Sequence
 
 from halo import Halo
 from langchain.chat_models.base import BaseChatModel
@@ -6,23 +6,15 @@ from langchain.schema import SystemMessage, HumanMessage, AIMessage, BaseMessage
 from langchain.tools import BaseTool
 
 from chatflock.ai_utils import execute_chat_model_messages
-from chatflock.base import ChatConductor, Chat, ActiveChatParticipant, ChatMessage, ChatCompositionGenerator, ChatParticipant
+from chatflock.base import ChatConductor, Chat, ActiveChatParticipant, ChatMessage, ChatCompositionGenerator
 from chatflock.errors import ChatParticipantNotJoinedToChatError
 from chatflock.structured_string import StructuredString, Section
 
 
 class LangChainBasedAIChatConductor(ChatConductor):
-    chat_model: BaseChatModel
-    chat_model_args: Dict[str, Any]
-    tools: Optional[List[BaseTool]] = None
-    retriever: Optional[BaseRetriever] = None
-    composition_generator: Optional[ChatCompositionGenerator] = None
-    participants_interaction_schema: Optional[str] = None
-    termination_condition: str = f'''Terminate the chat on the following conditions:
+    default_termination_condition: str = f'''Terminate the chat on the following conditions:
     - When the goal of the chat has been achieved
     - If one of the participants asks you to terminate it or has finished their sentence with "TERMINATE".'''
-    spinner: Optional[Halo] = None
-    composition_initialized: bool = False
 
     def __init__(self,
                  chat_model: BaseChatModel,
@@ -41,8 +33,10 @@ class LangChainBasedAIChatConductor(ChatConductor):
         self.retriever = retriever
         self.composition_generator = composition_generator
         self.participants_interaction_schema = participants_interaction_schema
-        self.termination_condition = termination_condition
+        self.termination_condition = termination_condition or self.default_termination_condition
         self.spinner = spinner
+
+        self.composition_initialized = False
 
     def create_next_speaker_system_prompt(self, chat: 'Chat') -> str:
         chat_messages = chat.get_messages()
@@ -201,7 +195,7 @@ class LangChainBasedAIChatConductor(ChatConductor):
 
         return next_speaker
 
-    def execute_messages(self, messages: List[BaseMessage]) -> str:
+    def execute_messages(self, messages: Sequence[BaseMessage]) -> str:
         return execute_chat_model_messages(
             messages=messages,
             chat_model=self.chat_model,
@@ -210,5 +204,8 @@ class LangChainBasedAIChatConductor(ChatConductor):
             chat_model_args=self.chat_model_args
         )
 
-    def get_relevant_docs(self, messages: List[ChatMessage]) -> List[Document]:
+    def get_relevant_docs(self, messages: Sequence[ChatMessage]) -> List[Document]:
+        if self.retriever is None:
+            return []
+
         return self.retriever.get_relevant_documents(query=messages[-1].content)

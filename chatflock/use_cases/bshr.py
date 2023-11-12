@@ -4,7 +4,7 @@ import json
 import os
 from functools import partial
 from pathlib import Path
-from typing import Optional, List, Dict, Type, Any
+from typing import Optional, List, Dict, Type, Any, Generator, TypeVar, Generic
 
 import questionary
 from dotenv import load_dotenv
@@ -22,7 +22,7 @@ from pydantic import BaseModel, Field
 
 from chatflock.backing_stores import InMemoryChatDataBackingStore
 from chatflock.backing_stores.langchain import LangChainMemoryBasedChatDataBackingStore
-from chatflock.base import Chat
+from chatflock.base import Chat, ChatDataBackingStore
 from chatflock.conductors import RoundRobinChatConductor
 from chatflock.parsing_utils import chat_messages_to_pydantic
 from chatflock.participants.langchain import LangChainBasedAIChatParticipant
@@ -49,7 +49,7 @@ class BHSRState(BaseModel):
     is_satisficed: Optional[bool] = None
 
 
-def save_state(state: BHSRState, state_file: Optional[str]):
+def save_state(state: BHSRState, state_file: Optional[str]) -> None:
     if state_file is None:
         return
 
@@ -92,10 +92,13 @@ def generate_queries(state: BHSRState,
                      max_queries: int = 5,
                      shared_sections: Optional[List[Section]] = None,
                      web_search_tool: Optional[BaseTool] = None,
-                     spinner: Optional[Halo] = None):
+                     spinner: Optional[Halo] = None) -> None:
     if state.queries_to_run is not None and len(state.queries_to_run) > 0:
         # Means we are continuing a previous session
         return
+
+    if shared_sections is None:
+        shared_sections = []
 
     query_generator = LangChainBasedAIChatParticipant(
         name='Search Query Generator',
@@ -139,9 +142,9 @@ def generate_queries(state: BHSRState,
     try:
         memory = ConversationSummaryBufferMemory(
             llm=chat_model,
-            max_token_limit=OpenAI.modelname_to_contextsize(chat_model.model_name)
+            max_token_limit=OpenAI.modelname_to_contextsize(chat_model.model_name)  # type: ignore
         )
-        backing_store = LangChainMemoryBasedChatDataBackingStore(memory=memory)
+        backing_store: ChatDataBackingStore = LangChainMemoryBasedChatDataBackingStore(memory=memory)
     except ValueError:
         backing_store = InMemoryChatDataBackingStore()
 
@@ -193,7 +196,7 @@ def generate_queries(state: BHSRState,
 def search_queries(state: BHSRState,
                    web_search: WebSearch,
                    n_search_results: int = 3,
-                   spinner: Optional[Halo] = None):
+                   spinner: Optional[Halo] = None) -> Generator[BHSRState, None, None]:
     if state.queries_to_run is None:
         return
 
@@ -217,7 +220,7 @@ def search_queries(state: BHSRState,
 def generate_hypothesis(state: BHSRState,
                         chat_model: BaseChatModel,
                         shared_sections: Optional[List[Section]] = None,
-                        spinner: Optional[Halo] = None):
+                        spinner: Optional[Halo] = None) -> None:
     hypothesis_generator = LangChainBasedAIChatParticipant(
         name='Information Needs Hypothesis Generator',
         role='Information Needs Hypothesis Generator',
@@ -262,7 +265,7 @@ def generate_hypothesis(state: BHSRState,
 def check_satisficing(state: BHSRState,
                       chat_model: BaseChatModel,
                       shared_sections: Optional[List[Section]] = None,
-                      spinner: Optional[Halo] = None):
+                      spinner: Optional[Halo] = None) -> None:
     satisficing_checker = LangChainBasedAIChatParticipant(
         name='Information Needs Satisficing Checker',
         role='Information Needs Satisficing Checker',
@@ -307,12 +310,12 @@ def check_satisficing(state: BHSRState,
 
 
 def brainstorm_search_hypothesize_refine(
-        web_search: WebSearch,
-        chat_model: BaseChatModel,
-        initial_state: Optional[BHSRState] = None,
-        n_search_results: int = 3,
-        state_file: Optional[str] = None,
-        spinner: Optional[Halo] = None) -> BHSRState:
+    web_search: WebSearch,
+    chat_model: BaseChatModel,
+    initial_state: Optional[BHSRState] = None,
+    n_search_results: int = 3,
+    state_file: Optional[str] = None,
+    spinner: Optional[Halo] = None) -> BHSRState:
     shared_sections = [
         Section(
             name='Current Date (YYYY-MM-DD)',
@@ -321,16 +324,19 @@ def brainstorm_search_hypothesize_refine(
     ]
     web_search_tool = WebResearchTool(web_search=web_search, n_results=n_search_results, spinner=spinner)
 
-    if state_file is not None:
+    if state_file is not None and spinner is not None:
         spinner.start('Loading previous state...')
 
     loaded_state = load_state(state_file)
     if loaded_state is None:
         initial_state = BHSRState() if initial_state is None else initial_state
-        spinner.stop()
+
+        if spinner is not None:
+            spinner.stop()
     else:
         initial_state = loaded_state
-        spinner.succeed('Loaded previous state.')
+        if spinner is not None:
+            spinner.succeed('Loaded previous state.')
 
     process = SequentialProcess(
         steps=[
@@ -344,8 +350,8 @@ def brainstorm_search_hypothesize_refine(
                     web_search_tool=web_search_tool,
                     spinner=spinner
                 ),
-                on_step_start=lambda _: spinner.start('Generating queries...'),
-                on_step_completed=lambda _: spinner.succeed('Queries generated.')
+                on_step_start=lambda _: spinner.start('Generating queries...') if spinner is not None else None,
+                on_step_completed=lambda _: spinner.succeed('Queries generated.') if spinner is not None else None
             ),
             Step(
                 name='Web Search',
@@ -355,8 +361,8 @@ def brainstorm_search_hypothesize_refine(
                     n_search_results=n_search_results,
                     spinner=spinner
                 ),
-                on_step_start=lambda _: spinner.start('Searching queries...'),
-                on_step_completed=lambda _: spinner.succeed('Queries answered.')
+                on_step_start=lambda _: spinner.start('Searching queries...') if spinner is not None else None,
+                on_step_completed=lambda _: spinner.succeed('Queries answered.') if spinner is not None else None
             ),
             Step(
                 name='Hypothesis Generation',
@@ -366,8 +372,8 @@ def brainstorm_search_hypothesize_refine(
                     shared_sections=shared_sections,
                     spinner=spinner
                 ),
-                on_step_start=lambda _: spinner.start('Generating hypothesis...'),
-                on_step_completed=lambda _: spinner.succeed('Hypothesis generated.')
+                on_step_start=lambda _: spinner.start('Generating hypothesis...') if spinner is not None else None,
+                on_step_completed=lambda _: spinner.succeed('Hypothesis generated.') if spinner is not None else None
             ),
             Step(
                 name='Satificing Check',
@@ -377,8 +383,9 @@ def brainstorm_search_hypothesize_refine(
                     shared_sections=shared_sections,
                     spinner=spinner
                 ),
-                on_step_start=lambda _: spinner.start('Checking satisfication condition...'),
-                on_step_completed=lambda _: spinner.succeed('Satisfication checked.')
+                on_step_start=lambda _: spinner.start(
+                    'Checking satisfication condition...') if spinner is not None else None,
+                on_step_completed=lambda _: spinner.succeed('Satisfication checked.') if spinner is not None else None
             ),
         ],
         initial_state=initial_state,
@@ -390,13 +397,13 @@ def brainstorm_search_hypothesize_refine(
 
 
 def run_brainstorm_search_hypothesize_refine_loop(
-        web_search: WebSearch,
-        chat_model: BaseChatModel,
-        n_search_results: int = 3,
-        initial_state: Optional[BHSRState] = None,
-        state_file: Optional[str] = None,
-        confirm_satisficed: bool = False,
-        spinner: Optional[Halo] = None) -> str:
+    web_search: WebSearch,
+    chat_model: BaseChatModel,
+    n_search_results: int = 3,
+    initial_state: Optional[BHSRState] = None,
+    state_file: Optional[str] = None,
+    confirm_satisficed: bool = False,
+    spinner: Optional[Halo] = None) -> str:
     while True:
         state = brainstorm_search_hypothesize_refine(
             initial_state=initial_state,
@@ -422,14 +429,17 @@ def run_brainstorm_search_hypothesize_refine_loop(
             state.is_satisficed = False
             state.feedback = feedback
 
-    return state.current_hypothesis
+    return state.current_hypothesis or ''
 
 
 class BrainstormSearchHypothesizeRefineToolArgs(BaseModel):
     query: str = Field(description='The query to thoroughly research.')
 
 
-class BrainstormSearchHypothesizeRefineTool(BaseTool):
+TArgSchema = TypeVar('TArgSchema', bound=BaseModel)
+
+
+class BrainstormSearchHypothesizeRefineTool(BaseTool, Generic[TArgSchema]):
     web_search: WebSearch
     chat_model: BaseChatModel
     n_results: int = 3
@@ -441,14 +451,14 @@ class BrainstormSearchHypothesizeRefineTool(BaseTool):
                         "to, for recent events, or if the user asks you to. This will evaluate answer snippets, "
                         "knowledge graphs, and the top N results from google and aggregate a result for multiple "
                         "queries. Very thorough research.")
-    args_schema: Type[BaseModel] = BrainstormSearchHypothesizeRefineToolArgs
+    args_schema: Type[TArgSchema] = BrainstormSearchHypothesizeRefineToolArgs
     progress_text: str = 'Researching the topic (this may take a while)...'
 
     def _run(
-            self,
-            query: str,
-            run_manager: Optional[CallbackManagerForToolRun] = None,
-            **kwargs: Any
+        self,
+        query: str,
+        run_manager: Optional[CallbackManagerForToolRun] = None,
+        **kwargs: Any
     ) -> Any:
         hypothesis = run_brainstorm_search_hypothesize_refine_loop(
             initial_state=BHSRState(information_need=query),

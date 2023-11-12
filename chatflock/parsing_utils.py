@@ -1,4 +1,4 @@
-from typing import Type, Optional, List
+from typing import Type, Optional, List, Sequence
 
 from halo import Halo
 from langchain.chat_models.base import BaseChatModel
@@ -30,7 +30,7 @@ def string_output_to_pydantic(output: str,
     )
 
 
-def chat_messages_to_pydantic(chat_messages: List[ChatMessage],
+def chat_messages_to_pydantic(chat_messages: Sequence[ChatMessage],
                               chat_model: BaseChatModel,
                               output_schema: Type[TOutputSchema],
                               spinner: Optional[Halo] = None,
@@ -54,7 +54,7 @@ def chat_messages_to_pydantic(chat_messages: List[ChatMessage],
 
     # Remove TERMINATE if present so the chat conductor doesn't end the chat prematurely
     if len(chat_messages) > 0:
-        chat_messages = chat_messages.copy()
+        chat_messages = list(chat_messages).copy()
         last_message = chat_messages[-1]
 
         try:
@@ -74,7 +74,7 @@ def chat_messages_to_pydantic(chat_messages: List[ChatMessage],
 
     parser_chat = Chat(
         goal='Convert the chat contents to a valid and logical JSON.',
-        backing_store=InMemoryChatDataBackingStore(messages=chat_messages),
+        backing_store=InMemoryChatDataBackingStore(messages=list(chat_messages)),
         renderer=NoChatRenderer(),
         initial_participants=[text_to_json_ai, json_parser],
         hide_messages=hide_message,

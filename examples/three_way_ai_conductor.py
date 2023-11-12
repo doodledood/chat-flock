@@ -1,14 +1,14 @@
 from halo import Halo
 
-from chatflock.backing_stores import InMemoryChatDataBackingStore
+from chatflock.backing_stores.in_memory import InMemoryChatDataBackingStore
 from chatflock.base import Chat
-from chatflock.conductors import LangChainBasedAIChatConductor
+from chatflock.conductors.langchain import LangChainBasedAIChatConductor
 from langchain.chat_models import ChatOpenAI
 from dotenv import load_dotenv
 
 from chatflock.participants.langchain import LangChainBasedAIChatParticipant
 from chatflock.participants.user import UserChatParticipant
-from chatflock.renderers import TerminalChatRenderer
+from chatflock.renderers.terminal import TerminalChatRenderer
 
 if __name__ == '__main__':
     load_dotenv()

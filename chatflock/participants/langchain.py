@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Sequence
 
 from halo import Halo
 from langchain.chat_models.base import BaseChatModel
@@ -12,17 +12,6 @@ from chatflock.structured_string import Section, StructuredString
 
 
 class LangChainBasedAIChatParticipant(ActiveChatParticipant):
-    personal_mission: str
-    role: str
-    chat_model: BaseChatModel
-    chat_model_args: Dict[str, Any]
-    other_prompt_sections: List[Section]
-    retriever: Optional[BaseRetriever] = None
-    tools: Optional[List[BaseTool]] = None,
-    ignore_group_chat_environment: bool = False
-    spinner: Optional[Halo] = None
-    include_timestamp_in_messages: bool = False
-
     class Config:
         arbitrary_types_allowed = True
 
@@ -39,7 +28,7 @@ class LangChainBasedAIChatParticipant(ActiveChatParticipant):
                  spinner: Optional[Halo] = None,
                  ignore_group_chat_environment: bool = False,
                  include_timestamp_in_messages: bool = False,
-                 **kwargs
+                 **kwargs: Any
                  ):
         super().__init__(name=name, symbol=symbol, **kwargs)
 
@@ -54,7 +43,7 @@ class LangChainBasedAIChatParticipant(ActiveChatParticipant):
         self.spinner = spinner
         self.personal_mission = personal_mission
 
-    def create_system_message(self, chat: 'Chat', relevant_docs: List[Document]):
+    def create_system_message(self, chat: 'Chat', relevant_docs: Sequence[Document]) -> str:
         now = datetime.now()
         pretty_datetime = now.strftime('%m-%d-%Y %H:%M:%S')
 
@@ -126,9 +115,9 @@ class LangChainBasedAIChatParticipant(ActiveChatParticipant):
 
         return str(system_message)
 
-    def chat_messages_to_chat_model_messages(self, chat_messages: List[ChatMessage]) -> \
+    def chat_messages_to_chat_model_messages(self, chat_messages: Sequence[ChatMessage]) -> \
             List[BaseMessage]:
-        messages = []
+        messages: List[BaseMessage] = []
         for message in chat_messages:
             if self.include_timestamp_in_messages:
                 pretty_datetime = message.timestamp.strftime('%m-%d-%Y %H:%M:%S')
@@ -181,10 +170,13 @@ class LangChainBasedAIChatParticipant(ActiveChatParticipant):
 
         return message_content
 
-    def get_relevant_docs(self, messages: List[ChatMessage]) -> List[Document]:
+    def get_relevant_docs(self, messages: Sequence[ChatMessage]) -> List[Document]:
+        if self.retriever is None:
+            return []
+
         return self.retriever.get_relevant_documents(query=messages[-1].content)
 
-    def execute_messages(self, messages: List[BaseMessage]) -> str:
+    def execute_messages(self, messages: Sequence[BaseMessage]) -> str:
         return execute_chat_model_messages(
             messages=messages,
             chat_model=self.chat_model,
@@ -193,10 +185,10 @@ class LangChainBasedAIChatParticipant(ActiveChatParticipant):
             chat_model_args=self.chat_model_args
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.symbol} {self.name} ({self.role})'
 
-    def detailed_str(self, level: int = 0):
+    def detailed_str(self, level: int = 0) -> str:
         prefix = '    ' * level
 
         tool_names = ', '.join([tool.name for tool in self.tools or []])

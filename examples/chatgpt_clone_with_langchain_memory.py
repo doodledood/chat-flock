@@ -35,7 +35,7 @@ if __name__ == '__main__':
         )
         backing_store: ChatDataBackingStore = LangChainMemoryBasedChatDataBackingStore(memory=memory)
     except ValueError:
-        backing_store: ChatDataBackingStore = InMemoryChatDataBackingStore()
+        backing_store = InMemoryChatDataBackingStore()
 
     chat = Chat(
         backing_store=backing_store,

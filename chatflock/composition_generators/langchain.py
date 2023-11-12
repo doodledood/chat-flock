@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional, List, Callable
+from typing import Dict, Any, Optional, List, Sequence
 
 from halo import Halo
 from langchain.chat_models.base import BaseChatModel
@@ -7,7 +7,7 @@ from langchain.tools import BaseTool
 
 from chatflock.ai_utils import execute_chat_model_messages
 from chatflock.backing_stores import InMemoryChatDataBackingStore
-from chatflock.base import ChatCompositionGenerator, Chat, GeneratedChatComposition
+from chatflock.base import ChatCompositionGenerator, Chat, GeneratedChatComposition, ActiveChatParticipant
 from chatflock.composition_generators import ManageParticipantsOutputSchema
 from chatflock.conductors import LangChainBasedAIChatConductor
 from chatflock.parsing_utils import string_output_to_pydantic
@@ -18,15 +18,6 @@ from chatflock.structured_string import StructuredString, Section
 
 
 class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
-    chat_model: BaseChatModel
-    chat_model_args: Dict[str, Any]
-    generator_tools: Optional[List[BaseTool]] = None
-    participant_available_tools: Optional[List[BaseTool]] = None
-    spinner: Optional[Halo] = None
-    n_output_parsing_tries: int = 3
-    prefer_critics: bool = False
-    generate_composition_extra_args: Optional[Dict[str, Any]] = None
-
     def __init__(self,
                  chat_model: BaseChatModel,
                  generator_tools: Optional[List[BaseTool]] = None,
@@ -64,7 +55,7 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
 
         create_internal_chat = self.generate_composition_extra_args.get('create_internal_chat', None)
         if create_internal_chat is None:
-            def create_internal_chat(**kwargs: Any) -> None:
+            def create_internal_chat(**kwargs: Any) -> Chat:
                 return Chat(
                     name=kwargs.get('name', None),
                     goal=kwargs.get('goal', None),
@@ -123,13 +114,15 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
                          f'{", ".join(participants_to_remove_names)} and add the following participants: '
                          f'{", ".join(participants_to_add_names)}')
 
-        participants = [p for p in chat.get_active_participants() if p.name not in output.participants_to_remove]
+        participants: List[ActiveChatParticipant] = [p for p in chat.get_active_participants() if
+                                                     p.name not in output.participants_to_remove]
 
         for participant in output.participants_to_add:
             if participant.type == 'individual':
-                participant_tools = [self.participant_tool_names_to_tools.get(tool_name) for tool_name in
-                                     participant.tools or [] if tool_name in self.participant_tool_names_to_tools]
-                chat_participant = LangChainBasedAIChatParticipant(
+                participant_tools: List[BaseTool] = \
+                    [self.participant_tool_names_to_tools.get(tool_name) for tool_name in participant.tools or [] if
+                     tool_name in self.participant_tool_names_to_tools]
+                chat_participant: ActiveChatParticipant = LangChainBasedAIChatParticipant(
                     name=participant.name,
                     role=participant.role,
                     personal_mission=participant.mission,
@@ -298,12 +291,12 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
         return str(system_message)
 
     def create_compose_chat_participants_first_human_prompt(
-            self,
-            chat: Chat,
-            participant_available_tools: Optional[List[BaseTool]] = None,
-            composition_suggestion: Optional[str] = None,
-            participants_interaction_schema: Optional[str] = None,
-            termination_condition: Optional[str] = None) -> str:
+        self,
+        chat: Chat,
+        participant_available_tools: Optional[List[BaseTool]] = None,
+        composition_suggestion: Optional[str] = None,
+        participants_interaction_schema: Optional[str] = None,
+        termination_condition: Optional[str] = None) -> str:
         messages = chat.get_messages()
         messages_list = [f'- {message.sender_name}: {message.content}' for message in messages]
 
@@ -333,7 +326,7 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
 
         return str(prompt)
 
-    def execute_messages(self, messages: List[BaseMessage]) -> str:
+    def execute_messages(self, messages: Sequence[BaseMessage]) -> str:
         return execute_chat_model_messages(
             messages=messages,
             chat_model=self.chat_model,

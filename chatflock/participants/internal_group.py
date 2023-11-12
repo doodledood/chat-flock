@@ -92,7 +92,7 @@ class InternalGroupBasedChatParticipant(ActiveChatParticipant):
 
         return leader_response_back
 
-    def __str__(self):
+    def __str__(self) -> str:
         active_participants = self.inner_chat.get_active_participants()
 
         if len(active_participants) > 0:
@@ -102,7 +102,7 @@ class InternalGroupBasedChatParticipant(ActiveChatParticipant):
 
         return self.name
 
-    def detailed_str(self, level: int = 0):
+    def detailed_str(self, level: int = 0) -> str:
         prefix = '    ' * level
 
         participants = self.inner_chat.get_active_participants()

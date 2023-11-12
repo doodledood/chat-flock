@@ -6,13 +6,13 @@ from chatflock.backing_stores import InMemoryChatDataBackingStore
 from chatflock.base import Chat
 from chatflock.code.docker import DockerCodeExecutor
 from chatflock.code.langchain import CodeExecutionTool
-from chatflock.conductors import RoundRobinChatConductor
+from chatflock.conductors.round_robin import RoundRobinChatConductor
 from langchain.chat_models import ChatOpenAI
 from dotenv import load_dotenv
 
 from chatflock.participants.langchain import LangChainBasedAIChatParticipant
 from chatflock.participants.user import UserChatParticipant
-from chatflock.renderers import TerminalChatRenderer
+from chatflock.renderers.terminal import TerminalChatRenderer
 from chatflock.web_research import WebSearch
 from chatflock.web_research.page_analyzer import OpenAIChatPageQueryAnalyzer
 from chatflock.web_research.page_retrievers.selenium_retriever import SeleniumPageRetriever

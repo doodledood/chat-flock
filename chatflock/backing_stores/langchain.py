@@ -5,12 +5,12 @@ from typing import List, Optional, Callable
 from langchain.memory.chat_memory import BaseChatMemory
 from langchain.schema import BaseMessage
 
-from chatflock.backing_stores import InMemoryChatDataBackingStore
+from chatflock.backing_stores.in_memory import InMemoryChatDataBackingStore
 from chatflock.base import ChatMessage, ChatParticipant
 
 
 def base_message_to_chat_message(base_message: BaseMessage) -> ChatMessage:
-    content = base_message.content
+    content = str(base_message.content)
 
     pattern = re.compile(r'(\d+)\.\s*(.+?):\s*(.*)', re.DOTALL)
     match = pattern.match(content)
@@ -54,7 +54,7 @@ class LangChainMemoryBasedChatDataBackingStore(InMemoryChatDataBackingStore):
 
                 return self.memory.output_key or 'history'
 
-            self.memory_key_getter = default_memory_key_getter
+            self.memory_key_getter: Callable[[BaseChatMemory], str] = default_memory_key_getter
         else:
             self.memory_key_getter = memory_key_getter
 
