@@ -1,5 +1,6 @@
-import abc
 from typing import Any
+
+import abc
 
 
 class PageRetriever(abc.ABC):

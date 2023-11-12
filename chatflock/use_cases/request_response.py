@@ -7,17 +7,20 @@ from chatflock.participants.user import UserChatParticipant
 from chatflock.renderers import NoChatRenderer
 
 
-def get_response(query: str, answerer: ActiveChatParticipant,
-                 backing_store: Optional[ChatDataBackingStore] = None,
-                 renderer: Optional[ChatRenderer] = None) -> Tuple[str, Chat]:
-    user = UserChatParticipant(name='User')
+def get_response(
+    query: str,
+    answerer: ActiveChatParticipant,
+    backing_store: Optional[ChatDataBackingStore] = None,
+    renderer: Optional[ChatRenderer] = None,
+) -> Tuple[str, Chat]:
+    user = UserChatParticipant(name="User")
     participants = [user, answerer]
 
     chat = Chat(
         backing_store=backing_store or InMemoryChatDataBackingStore(),
         renderer=renderer or NoChatRenderer(),
         initial_participants=participants,
-        max_total_messages=2
+        max_total_messages=2,
     )
 
     chat_conductor = RoundRobinChatConductor()

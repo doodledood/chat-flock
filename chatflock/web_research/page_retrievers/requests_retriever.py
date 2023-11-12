@@ -1,16 +1,18 @@
 from typing import Any, Dict
 
 import requests
-from tenacity import retry, wait_random, wait_fixed, stop_after_attempt, retry_if_exception_type
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed, wait_random
 
-from ..errors import TransientHTTPError, NonTransientHTTPError
+from ..errors import NonTransientHTTPError, TransientHTTPError
 from .base import PageRetriever
 
 
 class SimpleRequestsPageRetriever(PageRetriever):
-    @retry(retry=retry_if_exception_type(TransientHTTPError),
-           wait=wait_fixed(2) + wait_random(0, 2),
-           stop=stop_after_attempt(3))
+    @retry(
+        retry=retry_if_exception_type(TransientHTTPError),
+        wait=wait_fixed(2) + wait_random(0, 2),
+        stop=stop_after_attempt(3),
+    )
     def retrieve_html(self, url: str, **kwargs: Any) -> str:
         r = requests.get(url, **kwargs)
         if r.status_code < 300:

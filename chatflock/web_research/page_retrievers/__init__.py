@@ -5,9 +5,9 @@ from .scraper_api_retriever import ScraperAPIPageRetriever
 from .selenium_retriever import SeleniumPageRetriever
 
 __all__ = [
-    'PageRetriever',
-    'RetrieverWithFallback',
-    'SimpleRequestsPageRetriever',
-    'ScraperAPIPageRetriever',
-    'SeleniumPageRetriever'
+    "PageRetriever",
+    "RetrieverWithFallback",
+    "SimpleRequestsPageRetriever",
+    "ScraperAPIPageRetriever",
+    "SeleniumPageRetriever",
 ]

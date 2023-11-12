@@ -1,8 +1,9 @@
+from typing import Any, Dict, Optional, Sequence
+
 import io
+import subprocess
 import sys
 import traceback
-import subprocess
-from typing import Optional, Sequence, Dict, Any
 
 from halo import Halo
 
@@ -21,17 +22,17 @@ class LocalCodeExecutor(CodeExecutor):
         # Install dependencies before executing code using pip
         if dependencies is not None:
             if self.spinner is not None:
-                self.spinner.start('🐍 Installing dependencies...')
+                self.spinner.start("🐍 Installing dependencies...")
 
             subprocess.check_call([sys.executable, "-m", "pip", "install", *dependencies])
 
             if self.spinner is not None:
-                self.spinner.stop_and_persist(symbol='🐍', text='Dependencies installed.')
+                self.spinner.stop_and_persist(symbol="🐍", text="Dependencies installed.")
 
         local_vars: Dict[str, Any] = {}
 
         if self.spinner is not None:
-            self.spinner.start('🐍 Executing code...')
+            self.spinner.start("🐍 Executing code...")
 
         try:
             for line in code.splitlines(keepends=False):
@@ -40,12 +41,12 @@ class LocalCodeExecutor(CodeExecutor):
 
                 exec(code, None, local_vars)
         except:
-            return f'Error executing code: {traceback.format_exc()}'
+            return f"Error executing code: {traceback.format_exc()}"
         finally:
             sys.stdout = saved_stdout
 
         if self.spinner is not None:
-            self.spinner.stop_and_persist(symbol='🐍', text='Code executed.')
+            self.spinner.stop_and_persist(symbol="🐍", text="Code executed.")
 
         res = captured_output.getvalue()
 

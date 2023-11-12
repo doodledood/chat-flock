@@ -1,4 +1,5 @@
-from chatflock.base import ChatRenderer, Chat, ChatMessage
+from chatflock.base import Chat, ChatMessage, ChatRenderer
+
 from .terminal import TerminalChatRenderer
 
 
@@ -7,7 +8,4 @@ class NoChatRenderer(ChatRenderer):
         pass
 
 
-__all__ = [
-    'TerminalChatRenderer',
-    'NoChatRenderer'
-]
+__all__ = ["TerminalChatRenderer", "NoChatRenderer"]

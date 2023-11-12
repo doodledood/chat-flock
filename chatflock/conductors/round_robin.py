@@ -1,6 +1,6 @@
 from typing import Optional
 
-from chatflock.base import ChatConductor, Chat, ActiveChatParticipant, ChatMessage
+from chatflock.base import ActiveChatParticipant, Chat, ChatConductor, ChatMessage
 from chatflock.errors import ChatParticipantNotJoinedToChatError
 
 
@@ -36,11 +36,11 @@ class RoundRobinChatConductor(ChatConductor):
 
         return next_speaker
 
-    def get_chat_result(self, chat: 'Chat') -> str:
+    def get_chat_result(self, chat: "Chat") -> str:
         result = super().get_chat_result(chat=chat)
 
         try:
-            idx = result.rindex('TERMINATE')
+            idx = result.rindex("TERMINATE")
             result = result[:idx].strip()
         except ValueError:
             result = result.strip()
@@ -48,4 +48,4 @@ class RoundRobinChatConductor(ChatConductor):
         return result
 
     def is_termination_message(self, message: ChatMessage) -> bool:
-        return message.content.strip().endswith('TERMINATE')
+        return message.content.strip().endswith("TERMINATE")

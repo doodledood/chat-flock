@@ -1,5 +1,6 @@
-from abc import ABC, abstractmethod
 from typing import Optional, Sequence
+
+from abc import ABC, abstractmethod
 
 
 class CodeExecutor(ABC):

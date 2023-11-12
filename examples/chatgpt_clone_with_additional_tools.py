@@ -1,4 +1,6 @@
+from dotenv import load_dotenv
 from halo import Halo
+from langchain.chat_models import ChatOpenAI
 from langchain.llms.openai import OpenAI
 from langchain.text_splitter import TokenTextSplitter
 
@@ -7,9 +9,6 @@ from chatflock.base import Chat
 from chatflock.code.docker import DockerCodeExecutor
 from chatflock.code.langchain import CodeExecutionTool
 from chatflock.conductors.round_robin import RoundRobinChatConductor
-from langchain.chat_models import ChatOpenAI
-from dotenv import load_dotenv
-
 from chatflock.participants.langchain import LangChainBasedAIChatParticipant
 from chatflock.participants.user import UserChatParticipant
 from chatflock.renderers.terminal import TerminalChatRenderer
@@ -19,17 +18,11 @@ from chatflock.web_research.page_retrievers.selenium_retriever import SeleniumPa
 from chatflock.web_research.search import GoogleSerperSearchResultsProvider
 from chatflock.web_research.web_research import WebResearchTool
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     load_dotenv()
-    chat_model = ChatOpenAI(
-        temperature=0.0,
-        model='gpt-4-1106-preview'
-    )
+    chat_model = ChatOpenAI(temperature=0.0, model="gpt-4-1106-preview")
 
-    chat_model_for_page_analysis = ChatOpenAI(
-        temperature=0.0,
-        model='gpt-3.5-turbo-1106'
-    )
+    chat_model_for_page_analysis = ChatOpenAI(temperature=0.0, model="gpt-3.5-turbo-1106")
 
     try:
         max_context_size = OpenAI.modelname_to_contextsize(chat_model_for_page_analysis.model_name)
@@ -44,27 +37,26 @@ if __name__ == '__main__':
             # Should `pip install selenium webdriver_manager` to use this
             page_retriever=SeleniumPageRetriever(headless=True),
             text_splitter=TokenTextSplitter(chunk_size=max_context_size, chunk_overlap=max_context_size // 5),
-            use_first_split_only=True
-        )
+            use_first_split_only=True,
+        ),
     )
 
-    spinner = Halo(spinner='dots')
+    spinner = Halo(spinner="dots")
     ai = LangChainBasedAIChatParticipant(
-        name='Assistant',
+        name="Assistant",
         chat_model=chat_model,
         tools=[
             CodeExecutionTool(executor=DockerCodeExecutor(spinner=spinner), spinner=spinner),
-            WebResearchTool(web_search=web_search, n_results=3, spinner=spinner)
+            WebResearchTool(web_search=web_search, n_results=3, spinner=spinner),
         ],
-        spinner=spinner)
+        spinner=spinner,
+    )
 
-    user = UserChatParticipant(name='User')
+    user = UserChatParticipant(name="User")
     participants = [user, ai]
 
     chat = Chat(
-        backing_store=InMemoryChatDataBackingStore(),
-        renderer=TerminalChatRenderer(),
-        initial_participants=participants
+        backing_store=InMemoryChatDataBackingStore(), renderer=TerminalChatRenderer(), initial_participants=participants
     )
 
     chat_conductor = RoundRobinChatConductor()

@@ -15,12 +15,12 @@ class MessageCouldNotBeParsedError(Exception):
 
 class NotEnoughActiveParticipantsInChatError(Exception):
     def __init__(self, n_participants: int = 0):
-        super().__init__(f'There are not enough participants in this chat ({n_participants})')
+        super().__init__(f"There are not enough participants in this chat ({n_participants})")
 
 
 class NoMessagesInChatError(Exception):
     def __init__(self):
-        super().__init__('There are no messages in this chat.')
+        super().__init__("There are no messages in this chat.")
 
 
 class FunctionNotFoundError(Exception):

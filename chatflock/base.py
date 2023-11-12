@@ -1,12 +1,16 @@
+from typing import Any, Dict, List, Optional, Sequence, TypeVar
+
 import abc
 import dataclasses
 from datetime import datetime
-from typing import Optional, List, TypeVar, Sequence, Dict, Any
 
 from pydantic import BaseModel, Field
 
-from chatflock.errors import NotEnoughActiveParticipantsInChatError, ChatParticipantNotJoinedToChatError, \
-    ChatParticipantAlreadyJoinedToChatError
+from chatflock.errors import (
+    ChatParticipantAlreadyJoinedToChatError,
+    ChatParticipantNotJoinedToChatError,
+    NotEnoughActiveParticipantsInChatError,
+)
 
 TOutputSchema = TypeVar("TOutputSchema", bound=BaseModel)
 
@@ -17,19 +21,19 @@ class ChatParticipant(abc.ABC):
     def __init__(self, name: str):
         self.name = name
 
-    def on_new_chat_message(self, chat: 'Chat', message: 'ChatMessage') -> None:
+    def on_new_chat_message(self, chat: "Chat", message: "ChatMessage") -> None:
         pass
 
-    def on_chat_started(self, chat: 'Chat') -> None:
+    def on_chat_started(self, chat: "Chat") -> None:
         pass
 
-    def on_chat_ended(self, chat: 'Chat') -> None:
+    def on_chat_ended(self, chat: "Chat") -> None:
         pass
 
-    def on_participant_joined_chat(self, chat: 'Chat', participant: 'ChatParticipant') -> None:
+    def on_participant_joined_chat(self, chat: "Chat", participant: "ChatParticipant") -> None:
         pass
 
-    def on_participant_left_chat(self, chat: 'Chat', participant: 'ChatParticipant') -> None:
+    def on_participant_left_chat(self, chat: "Chat", participant: "ChatParticipant") -> None:
         pass
 
     def initialize(self) -> None:
@@ -39,30 +43,30 @@ class ChatParticipant(abc.ABC):
         return self.name
 
     def detailed_str(self, level: int = 0) -> str:
-        prefix = '    ' * level
-        return f'{prefix}Name: {self.name}'
+        prefix = "    " * level
+        return f"{prefix}Name: {self.name}"
 
 
 class ActiveChatParticipant(ChatParticipant):
     symbol: str
     messages_hidden: bool
 
-    def __init__(self, name: str, symbol: str = '👤', messages_hidden: bool = False):
+    def __init__(self, name: str, symbol: str = "👤", messages_hidden: bool = False):
         super().__init__(name=name)
 
         self.symbol = symbol
         self.messages_hidden = messages_hidden
 
     @abc.abstractmethod
-    def respond_to_chat(self, chat: 'Chat') -> str:
+    def respond_to_chat(self, chat: "Chat") -> str:
         raise NotImplementedError()
 
     def __str__(self) -> str:
-        return f'{self.symbol} {self.name}'
+        return f"{self.symbol} {self.name}"
 
     def detailed_str(self, level: int = 0) -> str:
-        prefix = '    ' * level
-        return f'{prefix}- {self.name}\n{prefix}  Symbol: {self.symbol}'
+        prefix = "    " * level
+        return f"{prefix}- {self.name}\n{prefix}  Symbol: {self.symbol}"
 
 
 class ChatMessage(BaseModel):
@@ -74,19 +78,19 @@ class ChatMessage(BaseModel):
 
 class ChatConductor(abc.ABC):
     @abc.abstractmethod
-    def select_next_speaker(self, chat: 'Chat') -> Optional[ActiveChatParticipant]:
+    def select_next_speaker(self, chat: "Chat") -> Optional[ActiveChatParticipant]:
         raise NotImplementedError()
 
-    def get_chat_result(self, chat: 'Chat') -> str:
+    def get_chat_result(self, chat: "Chat") -> str:
         messages = chat.get_messages()
         if len(messages) == 0:
-            return ''
+            return ""
 
         last_message = messages[-1]
 
         return last_message.content
 
-    def initialize_chat(self, chat: 'Chat', **kwargs: Any) -> None:
+    def initialize_chat(self, chat: "Chat", **kwargs: Any) -> None:
         # Make sure all participants are initialized.
         for active_participant in chat.get_active_participants():
             active_participant.initialize()
@@ -96,10 +100,10 @@ class ChatConductor(abc.ABC):
 
     def initiate_chat_with_result(
         self,
-        chat: 'Chat',
+        chat: "Chat",
         initial_message: Optional[str] = None,
         from_participant: Optional[ChatParticipant] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> str:
         self.initialize_chat(chat=chat, **kwargs)
 
@@ -124,10 +128,10 @@ class ChatConductor(abc.ABC):
             try:
                 message_content = next_speaker.respond_to_chat(chat=chat)
             except KeyboardInterrupt:
-                if next_speaker.name == 'User':
+                if next_speaker.name == "User":
                     raise
 
-                user_participant = chat.get_active_participant_by_name('User')
+                user_participant = chat.get_active_participant_by_name("User")
                 if user_participant is None:
                     raise
 
@@ -141,7 +145,7 @@ class ChatConductor(abc.ABC):
 
         return self.get_chat_result(chat=chat)
 
-    def start_chat(self, chat: 'Chat') -> None:
+    def start_chat(self, chat: "Chat") -> None:
         active_participants = chat.backing_store.get_active_participants()
         non_active_participants = chat.backing_store.get_non_active_participants()
         all_participants = active_participants + non_active_participants
@@ -149,7 +153,7 @@ class ChatConductor(abc.ABC):
         for participant in all_participants:
             participant.on_chat_started(chat=chat)
 
-    def end_chat(self, chat: 'Chat') -> None:
+    def end_chat(self, chat: "Chat") -> None:
         active_participants = chat.backing_store.get_active_participants()
         non_active_participants = chat.backing_store.get_non_active_participants()
         all_participants = active_participants + non_active_participants
@@ -205,7 +209,7 @@ class ChatDataBackingStore(abc.ABC):
 
 
 class ChatRenderer(abc.ABC):
-    def render_new_chat_message(self, chat: 'Chat', message: ChatMessage) -> None:
+    def render_new_chat_message(self, chat: "Chat", message: ChatMessage) -> None:
         raise NotImplementedError()
 
 
@@ -218,11 +222,13 @@ class GeneratedChatComposition:
 
 class ChatCompositionGenerator(abc.ABC):
     @abc.abstractmethod
-    def generate_composition_for_chat(self,
-                                      chat: 'Chat',
-                                      composition_suggestion: Optional[str] = None,
-                                      participants_interaction_schema: Optional[str] = None,
-                                      termination_condition: Optional[str] = None) -> GeneratedChatComposition:
+    def generate_composition_for_chat(
+        self,
+        chat: "Chat",
+        composition_suggestion: Optional[str] = None,
+        participants_interaction_schema: Optional[str] = None,
+        termination_condition: Optional[str] = None,
+    ) -> GeneratedChatComposition:
         raise NotImplementedError()
 
 
@@ -240,12 +246,13 @@ class Chat:
         renderer: ChatRenderer,
         initial_participants: Optional[Sequence[ChatParticipant]] = None,
         name: Optional[str] = None,
-        goal: str = 'This is a regular chatroom, the goal is to just have a conversation.',
+        goal: str = "This is a regular chatroom, the goal is to just have a conversation.",
         max_total_messages: Optional[int] = None,
-        hide_messages: bool = False
+        hide_messages: bool = False,
     ):
-        assert max_total_messages is None or max_total_messages > 0, ('Max total messages must be None or greater than '
-                                                                      '0.')
+        assert max_total_messages is None or max_total_messages > 0, (
+            "Max total messages must be None or greater than " "0."
+        )
 
         self.backing_store = backing_store
         self.renderer = renderer
@@ -259,12 +266,15 @@ class Chat:
 
     def add_participant(self, participant: ChatParticipant) -> None:
         if self.has_active_participant_with_name(participant.name) or self.has_non_active_participant_with_name(
-            participant.name):
+            participant.name
+        ):
             raise ChatParticipantAlreadyJoinedToChatError(participant.name)
 
         self.backing_store.add_participant(participant)
 
-        all_participants = self.backing_store.get_active_participants() + self.backing_store.get_non_active_participants()
+        all_participants = (
+            self.backing_store.get_active_participants() + self.backing_store.get_non_active_participants()
+        )
         for participant in all_participants:
             participant.on_participant_joined_chat(chat=self, participant=participant)
 
@@ -320,4 +330,4 @@ class Chat:
 
     @property
     def active_participants_str(self):
-        return '\n\n'.join([participant.detailed_str() for participant in self.get_active_participants()])
+        return "\n\n".join([participant.detailed_str() for participant in self.get_active_participants()])

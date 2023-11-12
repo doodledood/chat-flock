@@ -1,12 +1,13 @@
+from typing import Any, Dict, Type
+
 import re
-from typing import Type, Dict, Any
 
 from pydantic import BaseModel
 
 
 def fix_invalid_json(json_string: str, only_cut: bool = False) -> str:
     # Cut anything before the first { and after the last }
-    json_string = json_string[json_string.find('{'):json_string.rfind('}') + 1]
+    json_string = json_string[json_string.find("{") : json_string.rfind("}") + 1]
 
     if only_cut:
         return json_string
@@ -23,12 +24,12 @@ def fix_invalid_json(json_string: str, only_cut: bool = False) -> str:
 
     # Handle string values with newlines and potential code
     string_field_pattern = r'"([^"\\]*(?:\\.[^"\\]*)*)"'
-    fixed_json = ''
+    fixed_json = ""
     last_end = 0
 
     for m in re.finditer(string_field_pattern, json_string):
         start, end = m.span()
-        string_value = m.group(1).replace('\n', '\\n')  # Fix newlines
+        string_value = m.group(1).replace("\n", "\\n")  # Fix newlines
 
         # Additional handling for strings that might contain code
         # Escaping quotes within the string value

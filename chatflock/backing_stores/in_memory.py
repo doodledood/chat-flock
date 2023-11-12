@@ -1,7 +1,8 @@
-import datetime
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 
-from chatflock.base import ChatDataBackingStore, ChatMessage, ChatParticipant, ActiveChatParticipant
+import datetime
+
+from chatflock.base import ActiveChatParticipant, ChatDataBackingStore, ChatMessage, ChatParticipant
 from chatflock.errors import ChatParticipantAlreadyJoinedToChatError, ChatParticipantNotJoinedToChatError
 
 
@@ -10,8 +11,9 @@ class InMemoryChatDataBackingStore(ChatDataBackingStore):
     participants: Dict[str, ChatParticipant]
     last_message_id: Optional[int] = None
 
-    def __init__(self, messages: Optional[List[ChatMessage]] = None,
-                 participants: Optional[List[ChatParticipant]] = None):
+    def __init__(
+        self, messages: Optional[List[ChatMessage]] = None, participants: Optional[List[ChatParticipant]] = None
+    ):
         self.messages = messages or []
         self.participants = {participant.name: participant for participant in (participants or [])}
         self.last_message_id = None if len(self.messages) == 0 else self.messages[-1].id
@@ -26,7 +28,7 @@ class InMemoryChatDataBackingStore(ChatDataBackingStore):
             id=self.last_message_id,
             sender_name=sender_name,
             content=content,
-            timestamp=timestamp or datetime.datetime.now()
+            timestamp=timestamp or datetime.datetime.now(),
         )
 
         self.messages.append(message)
@@ -39,15 +41,17 @@ class InMemoryChatDataBackingStore(ChatDataBackingStore):
 
     def get_active_participants(self) -> List[ActiveChatParticipant]:
         participants = list(self.participants.values())
-        active_participants = [participant for participant in participants if
-                               isinstance(participant, ActiveChatParticipant)]
+        active_participants = [
+            participant for participant in participants if isinstance(participant, ActiveChatParticipant)
+        ]
 
         return active_participants
 
     def get_non_active_participants(self) -> List[ChatParticipant]:
         participants = list(self.participants.values())
-        participants = [participant for participant in participants if
-                        not isinstance(participant, ActiveChatParticipant)]
+        participants = [
+            participant for participant in participants if not isinstance(participant, ActiveChatParticipant)
+        ]
 
         return participants
 

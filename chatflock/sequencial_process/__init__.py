@@ -1,3 +1,3 @@
-from .sequential_process import Step, SequentialProcess
+from .sequential_process import SequentialProcess, Step
 
-__all__ = ['Step', 'SequentialProcess']
+__all__ = ["Step", "SequentialProcess"]

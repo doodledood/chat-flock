@@ -1,27 +1,28 @@
+from typing import Any, Optional, Tuple
+
 import json
 import logging
 import os
 import time
-from typing import Optional, Tuple, Any
 
 from bs4 import BeautifulSoup
-from tenacity import retry, retry_if_exception_type, wait_fixed, stop_after_attempt, wait_random
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed, wait_random
 
+from ..errors import NonTransientHTTPError, TransientHTTPError
 from .base import PageRetriever
-from ..errors import TransientHTTPError, NonTransientHTTPError
 
 try:
     from selenium import webdriver
-    from selenium.webdriver.chrome.service import Service
+    from selenium.common import NoSuchElementException, StaleElementReferenceException
+    from selenium.common.exceptions import NoSuchFrameException, TimeoutException, WebDriverException
     from selenium.webdriver.chrome.options import Options
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.wait import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    from selenium.common.exceptions import TimeoutException, WebDriverException, NoSuchFrameException
-    from webdriver_manager.chrome import ChromeDriverManager
-    from selenium.common import StaleElementReferenceException, NoSuchElementException
+    from selenium.webdriver.chrome.service import Service
     from selenium.webdriver.chrome.webdriver import WebDriver
+    from selenium.webdriver.common.by import By
     from selenium.webdriver.remote.remote_connection import LOGGER
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.support.wait import WebDriverWait
+    from webdriver_manager.chrome import ChromeDriverManager
 except ModuleNotFoundError as e:
     raise ImportError(
         "Selenium or webdriver_manager is not installed. "
@@ -33,10 +34,16 @@ LOGGER.setLevel(logging.NOTSET)
 
 
 class SeleniumPageRetriever(PageRetriever):
-    def __init__(self, headless: bool = True, main_page_timeout: int = 10, iframe_timeout: int = 10,
-                 main_page_min_wait: int = 2, driver_implicit_wait: int = 1,
-                 driver_page_load_timeout: Optional[int] = None, user_agent: Optional[str] = None):
-
+    def __init__(
+        self,
+        headless: bool = True,
+        main_page_timeout: int = 10,
+        iframe_timeout: int = 10,
+        main_page_min_wait: int = 2,
+        driver_implicit_wait: int = 1,
+        driver_page_load_timeout: Optional[int] = None,
+        user_agent: Optional[str] = None,
+    ):
         assert main_page_timeout >= main_page_min_wait, "Timeout must be greater than or equal to minimum_wait_time."
 
         self.main_page_min_wait = main_page_min_wait
@@ -67,10 +74,10 @@ class SeleniumPageRetriever(PageRetriever):
             chrome_options.add_argument(f"user-agent={self.user_agent}")
 
         # To solve tbsCertificate logging issue
-        chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        chrome_options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
         # Enable Performance Logging
-        chrome_options.set_capability("goog:loggingPrefs", {'performance': 'ALL'})
+        chrome_options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
         chrome_options.set_capability("pageLoadStrategy", "normal")
 
         service = Service(ChromeDriverManager().install(), log_output=os.devnull)
@@ -98,20 +105,21 @@ class SeleniumPageRetriever(PageRetriever):
                 try:
                     # Wait for the iframe to be available and for its document to be fully loaded
                     WebDriverWait(driver, self.iframe_timeout).until(
-                        lambda d: EC.frame_to_be_available_and_switch_to_it(iframe)(d) and  # type: ignore
-                                  d.execute_script("return document.readyState") == "complete"
+                        lambda d: EC.frame_to_be_available_and_switch_to_it(iframe)(d)
+                        and d.execute_script("return document.readyState") == "complete"  # type: ignore
                     )
 
                     # Set a temporary ID on the iframe, so we can find it later
-                    driver.execute_script("arguments[0].setAttribute('selenium-temp-id', arguments[1])",
-                                          iframe, iframe.id)
-                    iframe_id = iframe.get_attribute('selenium-temp-id')
+                    driver.execute_script(
+                        "arguments[0].setAttribute('selenium-temp-id', arguments[1])", iframe, iframe.id
+                    )
+                    iframe_id = iframe.get_attribute("selenium-temp-id")
 
                     # Capture the iframe HTML
                     iframe_html = driver.page_source
 
-                    iframe_soup = BeautifulSoup(iframe_html, 'html.parser')
-                    iframe_body = iframe_soup.find('body')
+                    iframe_soup = BeautifulSoup(iframe_html, "html.parser")
+                    iframe_body = iframe_soup.find("body")
 
                     iframe_contents[iframe_id] = iframe_body
                 except (StaleElementReferenceException, NoSuchFrameException, NoSuchElementException):
@@ -123,11 +131,11 @@ class SeleniumPageRetriever(PageRetriever):
 
             # Capture the main document HTML
             main_html = driver.page_source
-            soup = BeautifulSoup(main_html, 'html.parser')
+            soup = BeautifulSoup(main_html, "html.parser")
 
             for frame_id, iframe_body in iframe_contents.items():
                 # Insert the iframe body after the iframe element in the main document
-                soup_iframe = soup.find('iframe', {"selenium-temp-id": frame_id})
+                soup_iframe = soup.find("iframe", {"selenium-temp-id": frame_id})
                 if soup_iframe is None:
                     continue
 
@@ -138,11 +146,13 @@ class SeleniumPageRetriever(PageRetriever):
 
             return full_html
         except (WebDriverException, NoSuchFrameException) as e:
-            return f'An error occurred while retrieving the page: {e}'
+            return f"An error occurred while retrieving the page: {e}"
 
-    @retry(retry=retry_if_exception_type(TransientHTTPError),
-           wait=wait_fixed(2) + wait_random(0, 2),
-           stop=stop_after_attempt(3))
+    @retry(
+        retry=retry_if_exception_type(TransientHTTPError),
+        wait=wait_fixed(2) + wait_random(0, 2),
+        stop=stop_after_attempt(3),
+    )
     def retrieve_html(self, url: str, **kwargs: Any) -> str:
         driver = None
         service = None
