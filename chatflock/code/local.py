@@ -2,7 +2,7 @@ import io
 import sys
 import traceback
 import subprocess
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Dict, Any
 
 from halo import Halo
 
@@ -28,7 +28,7 @@ class LocalCodeExecutor(CodeExecutor):
             if self.spinner is not None:
                 self.spinner.stop_and_persist(symbol='🐍', text='Dependencies installed.')
 
-        local_vars = {}
+        local_vars: Dict[str, Any] = {}
 
         if self.spinner is not None:
             self.spinner.start('🐍 Executing code...')

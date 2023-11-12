@@ -11,7 +11,7 @@ from .base import CodeExecutor
 
 
 class DockerCodeExecutor(CodeExecutor):
-    def __init__(self, client: Optional[docker.DockerClient] = None,
+    def __init__(self, client: Optional[docker.DockerClient] = None,  # type: ignore
                  image_tag: str = 'python-executor:latest',
                  base_image: str = 'python:3.11-slim',
                  default_dependencies: Optional[Set[str]] = None,

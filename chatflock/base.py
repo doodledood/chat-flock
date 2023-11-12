@@ -57,10 +57,10 @@ class ActiveChatParticipant(ChatParticipant):
     def respond_to_chat(self, chat: 'Chat') -> str:
         raise NotImplementedError()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.symbol} {self.name}'
 
-    def detailed_str(self, level: int = 0):
+    def detailed_str(self, level: int = 0) -> str:
         prefix = '    ' * level
         return f'{prefix}- {self.name}\n{prefix}  Symbol: {self.symbol}'
 
@@ -86,20 +86,20 @@ class ChatConductor(abc.ABC):
 
         return last_message.content
 
-    def initialize_chat(self, chat: 'Chat', **kwargs) -> None:
+    def initialize_chat(self, chat: 'Chat', **kwargs: Any) -> None:
         # Make sure all participants are initialized.
-        for participant in chat.get_active_participants():
-            participant.initialize()
+        for active_participant in chat.get_active_participants():
+            active_participant.initialize()
 
-        for participant in chat.get_non_active_participants():
-            participant.initialize()
+        for non_active_participant in chat.get_non_active_participants():
+            non_active_participant.initialize()
 
     def initiate_chat_with_result(
         self,
         chat: 'Chat',
         initial_message: Optional[str] = None,
         from_participant: Optional[ChatParticipant] = None,
-        **kwargs: Dict[str, Any]
+        **kwargs: Any
     ) -> str:
         self.initialize_chat(chat=chat, **kwargs)
 

@@ -1,9 +1,9 @@
-from typing import Callable, Any, Generator, TypeVar, Optional
+from typing import Callable, Any, Generator, TypeVar, Optional, Dict, Sequence, Generic
 
 T = TypeVar('T')
 
 
-class Step:
+class Step(Generic[T]):
     def __init__(self,
                  name: str,
                  func: Callable[[T, Any], Optional[Generator[T, None, None]]],
@@ -17,18 +17,22 @@ class Step:
         self.on_step_completed = on_step_completed
         self.on_step_failed = on_step_failed
 
-    def run(self, state: T, **kwargs) -> T:
-        for new_state in (self.func(state, **kwargs) or []):
+    def run(self, state: T, **kwargs: Any) -> Generator[T, None, None]:
+        res = self.func(state, **kwargs)  # type: ignore
+        if res is None:
+            return
+
+        for new_state in res:
             yield new_state
 
 
-class SequentialProcess:
-    def __init__(self, steps: [Step], initial_state: T, save_state: Callable[[T], None]):
+class SequentialProcess(Generic[T]):
+    def __init__(self, steps: Sequence[Step[T]], initial_state: T, save_state: Callable[[T], None]):
         self.steps = steps
         self.state = initial_state
         self.save_state_func = save_state
 
-    def save_state(self, state: T):
+    def save_state(self, state: T) -> None:
         self.save_state_func(state)
 
     def run(self) -> T:

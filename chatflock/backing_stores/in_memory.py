@@ -19,7 +19,7 @@ class InMemoryChatDataBackingStore(ChatDataBackingStore):
     def get_messages(self) -> List[ChatMessage]:
         return self.messages
 
-    def add_message(self, sender_name: str, content: str, timestamp: Optional[datetime] = None) -> ChatMessage:
+    def add_message(self, sender_name: str, content: str, timestamp: Optional[datetime.datetime] = None) -> ChatMessage:
         self.last_message_id = self.last_message_id + 1 if self.last_message_id is not None else 1
 
         message = ChatMessage(
@@ -39,9 +39,10 @@ class InMemoryChatDataBackingStore(ChatDataBackingStore):
 
     def get_active_participants(self) -> List[ActiveChatParticipant]:
         participants = list(self.participants.values())
-        participants = [participant for participant in participants if isinstance(participant, ActiveChatParticipant)]
+        active_participants = [participant for participant in participants if
+                               isinstance(participant, ActiveChatParticipant)]
 
-        return participants
+        return active_participants
 
     def get_non_active_participants(self) -> List[ChatParticipant]:
         participants = list(self.participants.values())
@@ -70,13 +71,13 @@ class InMemoryChatDataBackingStore(ChatDataBackingStore):
 
         return participant
 
-    def add_participant(self, participant: ChatParticipant):
+    def add_participant(self, participant: ChatParticipant) -> None:
         if participant.name in self.participants:
             raise ChatParticipantAlreadyJoinedToChatError(participant.name)
 
         self.participants[participant.name] = participant
 
-    def remove_participant(self, participant: ChatParticipant):
+    def remove_participant(self, participant: ChatParticipant) -> None:
         if participant.name not in self.participants:
             raise ChatParticipantNotJoinedToChatError(participant.name)
 

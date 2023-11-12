@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, Any, Dict
 
 from .requests_retriever import SimpleRequestsPageRetriever
 
@@ -17,7 +17,7 @@ class ScraperAPIPageRetriever(SimpleRequestsPageRetriever):
         self.api_key = api_key
         self.render_js = render_js
 
-    def retrieve_html(self, url: str, **kwargs) -> str:
+    def retrieve_html(self, url: str, **kwargs: Any) -> str:
         return super().retrieve_html(url, params={
             'api_key': self.api_key,
             'url': url,

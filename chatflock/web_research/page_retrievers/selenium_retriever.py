@@ -2,13 +2,12 @@ import json
 import logging
 import os
 import time
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Any
 
 from bs4 import BeautifulSoup
-from selenium.webdriver.common.service import Service
 from tenacity import retry, retry_if_exception_type, wait_fixed, stop_after_attempt, wait_random
 
-from . import PageRetriever
+from .base import PageRetriever
 from ..errors import TransientHTTPError, NonTransientHTTPError
 
 try:
@@ -99,7 +98,7 @@ class SeleniumPageRetriever(PageRetriever):
                 try:
                     # Wait for the iframe to be available and for its document to be fully loaded
                     WebDriverWait(driver, self.iframe_timeout).until(
-                        lambda d: EC.frame_to_be_available_and_switch_to_it(iframe)(d) and
+                        lambda d: EC.frame_to_be_available_and_switch_to_it(iframe)(d) and  # type: ignore
                                   d.execute_script("return document.readyState") == "complete"
                     )
 
@@ -144,7 +143,7 @@ class SeleniumPageRetriever(PageRetriever):
     @retry(retry=retry_if_exception_type(TransientHTTPError),
            wait=wait_fixed(2) + wait_random(0, 2),
            stop=stop_after_attempt(3))
-    def retrieve_html(self, url: str) -> str:
+    def retrieve_html(self, url: str, **kwargs: Any) -> str:
         driver = None
         service = None
         try:

@@ -47,5 +47,5 @@ class RoundRobinChatConductor(ChatConductor):
 
         return result
 
-    def is_termination_message(self, message: ChatMessage):
+    def is_termination_message(self, message: ChatMessage) -> bool:
         return message.content.strip().endswith('TERMINATE')

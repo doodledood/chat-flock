@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Dict, Any
 
-from chatflock.web_research.page_retrievers import PageRetriever
+from .base import PageRetriever
 
 
 class RetrieverWithFallback(PageRetriever):
@@ -9,13 +9,13 @@ class RetrieverWithFallback(PageRetriever):
 
         self.retrievers = retrievers
 
-    def retrieve_html(self, url: str, **kwargs) -> str:
+    def retrieve_html(self, url: str, **kwargs: Any) -> str:
         last_error = None
+
         for retriever in self.retrievers:
             try:
                 return retriever.retrieve_html(url, **kwargs)
             except Exception as e:
                 last_error = e
 
-        if last_error is not None:
-            raise last_error
+        raise last_error or Exception('No retriever was able to retrieve the page.')

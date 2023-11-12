@@ -64,7 +64,7 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
 
         create_internal_chat = self.generate_composition_extra_args.get('create_internal_chat', None)
         if create_internal_chat is None:
-            def create_internal_chat(**kwargs):
+            def create_internal_chat(**kwargs: Any) -> None:
                 return Chat(
                     name=kwargs.get('name', None),
                     goal=kwargs.get('goal', None),

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 
 from halo import Halo
 
@@ -21,7 +21,7 @@ class InternalGroupBasedChatParticipant(ActiveChatParticipant):
                  chat_conductor: ChatConductor,
                  clear_inner_chat_before_responding: bool = False,
                  spinner: Optional[Halo] = None,
-                 **kwargs):
+                 **kwargs: Any) -> None:
         self.inner_chat = chat
         self.inner_chat_conductor = chat_conductor
         self.clear_inner_chat_before_responding = clear_inner_chat_before_responding

@@ -1,5 +1,5 @@
 import re
-from typing import Type
+from typing import Type, Dict, Any
 
 from pydantic import BaseModel
 
@@ -42,7 +42,7 @@ def fix_invalid_json(json_string: str, only_cut: bool = False) -> str:
     return fixed_json
 
 
-def pydantic_to_json_schema(pydantic_model: Type[BaseModel]) -> dict:
+def pydantic_to_json_schema(pydantic_model: Type[BaseModel]) -> Dict[str, Any]:
     try:
         return pydantic_model.model_json_schema()
     except AttributeError:

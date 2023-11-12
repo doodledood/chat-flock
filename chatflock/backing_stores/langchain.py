@@ -1,3 +1,4 @@
+import datetime
 import re
 from typing import List, Optional, Callable
 
@@ -33,23 +34,23 @@ def base_message_to_chat_message(base_message: BaseMessage) -> ChatMessage:
 
 
 class LangChainMemoryBasedChatDataBackingStore(InMemoryChatDataBackingStore):
-    memory: BaseChatMemory
-    memory_key_getter: Callable[[BaseChatMemory], str]
     no_output_message: str = '##NO_OUTPUT##'
 
     def __init__(self,
                  memory: BaseChatMemory,
                  memory_key_getter: Optional[Callable[[BaseChatMemory], str]] = None,
                  messages: Optional[List[ChatMessage]] = None,
+                 include_timestamp_in_messages: bool = False,
                  participants: Optional[List[ChatParticipant]] = None):
         super().__init__(participants=participants)
 
         self.memory = memory
+        self.include_timestamp_in_messages = include_timestamp_in_messages
 
         if memory_key_getter is None:
             def default_memory_key_getter(memory: BaseChatMemory) -> str:
                 if hasattr(memory, 'memory_key'):
-                    return memory.memory_key
+                    return str(memory.memory_key)
 
                 return self.memory.output_key or 'history'
 
@@ -71,11 +72,16 @@ class LangChainMemoryBasedChatDataBackingStore(InMemoryChatDataBackingStore):
 
         return chat_messages
 
-    def add_message(self, sender_name: str, content: str) -> ChatMessage:
+    def add_message(self, sender_name: str, content: str, timestamp: Optional[datetime.datetime] = None) -> ChatMessage:
         message = super().add_message(sender_name=sender_name, content=content)
 
+        prefix = ''
+        if self.include_timestamp_in_messages:
+            pretty_datetime = message.timestamp.strftime('%m-%d-%Y %H:%M:%S')
+            prefix = f'[{pretty_datetime}] '
+
         self.memory.save_context({
-            "input": f'{message.id}. {message.sender_name}: {message.content}'
+            "input": f'{prefix}{message.id}. {message.sender_name}: {message.content}'
         }, {
             'output': self.no_output_message
         })

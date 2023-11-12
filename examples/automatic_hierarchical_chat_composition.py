@@ -39,7 +39,7 @@ if __name__ == '__main__':
             return InMemoryChatDataBackingStore()
 
 
-    def create_chat(**kwargs) -> Chat:
+    def create_chat(**kwargs: Any) -> Chat:
         return Chat(
             backing_store=create_default_backing_store(),
             renderer=TerminalChatRenderer(),

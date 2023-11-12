@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from chatflock.participants.langchain import LangChainBasedAIChatParticipant
 from chatflock.structured_string import Section
@@ -8,7 +8,7 @@ class SPRWriterChatParticipant(LangChainBasedAIChatParticipant):
     def __init__(self,
                  name: str = 'SPR Writer',
                  other_prompt_sections: Optional[List[Section]] = None,
-                 **kwargs):
+                 **kwargs: Any) -> None:
         super().__init__(
             name=name,
             personal_mission='You are a Sparse Priming Representation (SPR) writer. An SPR is a particular kind of '
