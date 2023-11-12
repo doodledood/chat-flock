@@ -37,6 +37,26 @@ At the heart of ChatFlock is the Conductor, a novel entity that determines the s
 
 ### 📝 Usage Examples 
 
+#### 2-Participant Chat
+
+- [Basic ChatGPT Clone](examples/chatgpt_clone.py)
+- [Basic ChatGPT Clone with Tools](examples/chatgpt_clone_with_additional_tools.py)
+- [Basic ChatGPT Clone with LangChain Memory](examples/chatgpt_clone_with_langchain_memory.py)
+- [Basic ChatGPT Clone with LangChain-Based Retrieval](examples/chatgpt_clone_with_langchain_retrieval.py)
+
+#### Multi-Participant Chat (Manual Setup)
+
+- [3-Way Chat with an AI-based Conductor](examples/three_way_ai_conductor.py)
+- [Multi-Participant Chat with a Group-Based Participant (Manual)](examples/manual_internal_group_participant.py)
+
+#### Multi-Participant Chat (Automatically Composed)
+- [Multi-Participant Chat with a Composition Generator with a 1-level Composition](examples/automatic_chat_simple_composition.py)
+- [Multi-Participant Chat with a Composition Generator with a 2-Level Composition](examples/automatic_chat_simple_composition.py)
+- [Multi-Participant Chat with a Composition Generator with a deep (3+ level) Hierarchical Composition](examples/automatic_hierarchical_chat_composition.py)
+
+#### End-to-End Examples
+- [BSHR (Brainstorm-Search-Hypothesize-Refine) Loop](chatflock/use_cases/bshr.py) - Based on [David Shapiro's](https://github.com/daveshap/BSHR_Loop) idea.
+
 ## 🚀 Features
 
 - **Multi-Participant LLM-Based Chats**: Enable rich, collaborative conversations with AI and human participants.

@@ -4,7 +4,7 @@ from langchain.memory import ConversationSummaryBufferMemory
 
 from chatflock.backing_stores import InMemoryChatDataBackingStore
 from chatflock.backing_stores.langchain import LangChainMemoryBasedChatDataBackingStore
-from chatflock.base import Chat
+from chatflock.base import Chat, ChatDataBackingStore
 from chatflock.conductors import RoundRobinChatConductor
 from langchain.chat_models import ChatOpenAI
 from dotenv import load_dotenv
@@ -33,9 +33,9 @@ if __name__ == '__main__':
             llm=chat_model,
             max_token_limit=OpenAI.modelname_to_contextsize(chat_model.model_name)
         )
-        backing_store = LangChainMemoryBasedChatDataBackingStore(memory=memory)
+        backing_store: ChatDataBackingStore = LangChainMemoryBasedChatDataBackingStore(memory=memory)
     except ValueError:
-        backing_store = InMemoryChatDataBackingStore()
+        backing_store: ChatDataBackingStore = InMemoryChatDataBackingStore()
 
     chat = Chat(
         backing_store=backing_store,

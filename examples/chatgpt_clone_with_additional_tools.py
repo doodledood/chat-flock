@@ -5,6 +5,7 @@ from langchain.text_splitter import TokenTextSplitter
 from chatflock.backing_stores import InMemoryChatDataBackingStore
 from chatflock.base import Chat
 from chatflock.code.docker import DockerCodeExecutor
+from chatflock.code.langchain import CodeExecutionTool
 from chatflock.conductors import RoundRobinChatConductor
 from langchain.chat_models import ChatOpenAI
 from dotenv import load_dotenv
