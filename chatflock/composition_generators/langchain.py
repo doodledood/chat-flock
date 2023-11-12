@@ -120,7 +120,7 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
         for participant in output.participants_to_add:
             if participant.type == 'individual':
                 participant_tools: List[BaseTool] = \
-                    [self.participant_tool_names_to_tools.get(tool_name) for tool_name in participant.tools or [] if
+                    [self.participant_tool_names_to_tools[tool_name] for tool_name in participant.tools or [] if
                      tool_name in self.participant_tool_names_to_tools]
                 chat_participant: ActiveChatParticipant = LangChainBasedAIChatParticipant(
                     name=participant.name,

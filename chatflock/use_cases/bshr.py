@@ -393,7 +393,7 @@ def brainstorm_search_hypothesize_refine(
     )
 
     state = process.run()
-    return state
+    return state  # type: ignore
 
 
 def run_brainstorm_search_hypothesize_refine_loop(
@@ -451,7 +451,7 @@ class BrainstormSearchHypothesizeRefineTool(BaseTool, Generic[TArgSchema]):
                         "to, for recent events, or if the user asks you to. This will evaluate answer snippets, "
                         "knowledge graphs, and the top N results from google and aggregate a result for multiple "
                         "queries. Very thorough research.")
-    args_schema: Type[TArgSchema] = BrainstormSearchHypothesizeRefineToolArgs
+    args_schema: Type[TArgSchema] = BrainstormSearchHypothesizeRefineToolArgs  # type: ignore
     progress_text: str = 'Researching the topic (this may take a while)...'
 
     def _run(

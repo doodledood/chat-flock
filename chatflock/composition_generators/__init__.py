@@ -50,10 +50,12 @@ class ManageParticipantsOutputSchema(BaseModel):
             '"composition_suggestion": "The team should include a Team Leader, Software Engineer, QA Engineer, '
             'and a Software Architect", "symbol": "🛠️"}]'
         ])
-    updated_speaker_interaction_schema: Optional[str] = Field(
-        description='An updated version of the original interaction schema to better reflect how to achieve the goal.')
-    updated_termination_condition: Optional[str] = Field(
-        description='An updated version of the termination condition to better reflect the achievement of the goal.')
+    updated_speaker_interaction_schema: str = Field(
+        description='An updated (or new) version of the original interaction schema to better reflect how to achieve '
+                    'the goal.')
+    updated_termination_condition: str = Field(
+        description='An updated (or new) version of the termination condition to better reflect the achievement of the '
+                    'goal.')
 
 
 __all__ = [
