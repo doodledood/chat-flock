@@ -10,8 +10,8 @@ description = "Driving Dynamic Multi-Participant Chat Interactions for AI and Hu
 readme = "README.md"
 authors = ["chat-flock <hello@chat-flock.com>"]
 license = "MIT"
-repository = "https://github.com/chat-flock/chat-flock"
-homepage = "https://github.com/chat-flock/chat-flock"
+repository = "https://github.com/doodledood/chat-flock"
+homepage = "https://github.com/doodledood/chat-flock"
 
 # Keywords description https://python-poetry.org/docs/pyproject/#keywords
 keywords = []  #! Update me
