@@ -14,10 +14,14 @@ repository = "https://github.com/doodledood/chat-flock"
 homepage = "https://github.com/doodledood/chat-flock"
 
 # Keywords description https://python-poetry.org/docs/pyproject/#keywords
-keywords = []  #! Update me
+keywords = ["chat", "chatbot", "openai", "llm", "generative-ai", "langchain"]
+
+packages = [
+  { include = "chatflock" },
+]
 
 # Pypi classifiers: https://pypi.org/classifiers/
-classifiers = [  #! Update me
+classifiers = [#! Update me
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
   "Operating System :: OS Independent",
@@ -33,12 +37,21 @@ classifiers = [  #! Update me
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
-importlib_metadata = {version = "^6.8.0", python = "<3.8"}
+importlib_metadata = { version = "^6.8.0", python = "<3.8" }
+requests = "^2.31.0"
+langchain = "^0.0.334"
+python-dotenv = "^1.0.0"
+halo = "^0.0.31"
+tqdm = "^4.66.1"
+pydantic = "^2.4.2"
+beautifulsoup4 = "^4.12.2"
+tenacity = "^8.2.3"
+questionary = "^2.0.1"
 [tool.poetry.dev-dependencies]
 bandit = "^1.7.1"
-black = {version = "^23.11.0", allow-prereleases = true}
+black = { version = "^23.11.0", allow-prereleases = true }
 darglint = "^1.8.1"
-isort = {extras = ["colors"], version = "^5.12.0"}
+isort = { extras = ["colors"], version = "^5.12.0" }
 mypy = "^1.7.0"
 mypy-extensions = "^1.0.0"
 pre-commit = "^3.5.0"
@@ -117,7 +130,7 @@ warn_unused_ignores = true
 [tool.pytest.ini_options]
 # https://docs.pytest.org/en/6.2.x/customize.html#pyproject-toml
 # Directories that are not visited by pytest collector:
-norecursedirs =["hooks", "*.egg", ".eggs", "dist", "build", "docs", ".tox", ".git", "__pycache__"]
+norecursedirs = ["hooks", "*.egg", ".eggs", "dist", "build", "docs", ".tox", ".git", "__pycache__"]
 doctest_optionflags = ["NUMBER", "NORMALIZE_WHITESPACE", "IGNORE_EXCEPTION_DETAIL"]
 
 # Extra options:
