@@ -113,7 +113,7 @@ Building a new version of the application contains steps:
 
 ## 🛡 License
 
-[![License](https://img.shields.io/github/license/chat-flock/chat-flock)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 This project is licensed under the terms of the `MIT` license. See [LICENSE](LICENSE) for more details.
 
