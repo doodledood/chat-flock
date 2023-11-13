@@ -39,7 +39,7 @@ classifiers = [#! Update me
 python = "^3.8.1"
 importlib_metadata = { version = "^6.8.0", python = "<3.8" }
 requests = "^2.31.0"
-langchain = "^0.0.334"
+langchain = "^0.0.335"
 python-dotenv = "^1.0.0"
 halo = "^0.0.31"
 tqdm = "^4.66.1"
