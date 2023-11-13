@@ -1,6 +1,6 @@
+import typer
 from dotenv import load_dotenv
 from halo import Halo
-from langchain.chat_models import ChatOpenAI
 
 from chatflock.backing_stores.in_memory import InMemoryChatDataBackingStore
 from chatflock.base import Chat
@@ -8,40 +8,57 @@ from chatflock.conductors.langchain import LangChainBasedAIChatConductor
 from chatflock.participants.langchain import LangChainBasedAIChatParticipant
 from chatflock.participants.user import UserChatParticipant
 from chatflock.renderers.terminal import TerminalChatRenderer
+from examples.common import create_chat_model
 
-if __name__ == "__main__":
-    load_dotenv()
-    chat_model = ChatOpenAI(temperature=0.0, model="gpt-4-1106-preview")
+
+def three_way_ai_conductor(model: str = "gpt-4-1106-preview", temperature: float = 0.0) -> None:
+    chat_model = create_chat_model(model=model, temperature=temperature)
 
     spinner = Halo(spinner="dots")
-    ai = LangChainBasedAIChatParticipant(
-        name="Assistant", role="Boring Serious AI Assistant", chat_model=chat_model, spinner=spinner
+    bartender = LangChainBasedAIChatParticipant(
+        name="Johnny",
+        role="Bartender",
+        personal_mission="You are a bartender at a Cafe called 'Coffee Time'. You are a friendly guy who likes to "
+        "chat with customers. You should collaborate with the Cook when the customer asks for food. "
+        "You are the one in front, greeting the customer.",
+        chat_model=chat_model,
+        spinner=spinner,
     )
-    rob = LangChainBasedAIChatParticipant(
-        name="Rob",
-        role="Funny Prankster",
-        personal_mission="Take the lead and try to prank the boring AI. Collaborate "
-        "with the user when relevant and make him laugh!",
+    cook = LangChainBasedAIChatParticipant(
+        name="Greg",
+        role="Cook",
+        personal_mission="You are a cook at a Cafe called 'Coffee Time'. You are an impatient and serious guy who "
+        "doesn't like to chat with customers. You should collaborate with the Bartender when the "
+        "customer asks for food. You are the one in the back, preparing the food.",
         chat_model=chat_model,
         spinner=spinner,
     )
     user = UserChatParticipant(name="User")
-    participants = [user, ai, rob]
+    participants = [user, bartender, cook]
 
     chat = Chat(
         backing_store=InMemoryChatDataBackingStore(),
         renderer=TerminalChatRenderer(),
         initial_participants=participants,
-        goal="Make the user laugh by pranking the boring AI.",
     )
 
     chat_conductor = LangChainBasedAIChatConductor(
         chat_model=chat_model,
         spinner=spinner,
-        participants_interaction_schema=f"Assistant should go first. Then, rob should jump in and  take the lead and go back and forth with the "
-        f"assistant trying to prank him. Once a prank is done by Rob the user come in and give feedback or collaborate "
-        f"with Rob. However the majority of the prank should be done by Rob.",
-        termination_condition="One laugh is enough. Terminate the chat when the user finds a prank funny.",
+        # This tells the conductor how to select the next speaker
+        participants_interaction_schema="The User is a customer at a Cafe called 'Coffee Time'. The bartender should go first and greet the customer. "
+        "When the user asks for food and orders something, the bartender should ask the cook to cook the food. "
+        "There might be some conversation between the cook and bartender. "
+        "The cook should then give the food to the bartender and the bartender should give the food to the user. "
+        "The user should then eat the food and give feedback to the bartender. The cook should not talk to the user.",
+        # This tells the conductor when to stop the chat
+        termination_condition="When the user finds the food satisfactory.",
     )
 
     chat_conductor.initiate_chat_with_result(chat=chat)
+
+
+if __name__ == "__main__":
+    load_dotenv()
+
+    typer.run(three_way_ai_conductor)

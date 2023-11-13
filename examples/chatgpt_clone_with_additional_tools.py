@@ -1,12 +1,11 @@
+import typer
 from dotenv import load_dotenv
 from halo import Halo
-from langchain.chat_models import ChatOpenAI
-from langchain.llms.openai import OpenAI
 from langchain.text_splitter import TokenTextSplitter
 
 from chatflock.backing_stores import InMemoryChatDataBackingStore
 from chatflock.base import Chat
-from chatflock.code.docker import DockerCodeExecutor
+from chatflock.code import LocalCodeExecutor
 from chatflock.code.langchain import CodeExecutionTool
 from chatflock.conductors.round_robin import RoundRobinChatConductor
 from chatflock.participants.langchain import LangChainBasedAIChatParticipant
@@ -17,17 +16,21 @@ from chatflock.web_research.page_analyzer import OpenAIChatPageQueryAnalyzer
 from chatflock.web_research.page_retrievers.selenium_retriever import SeleniumPageRetriever
 from chatflock.web_research.search import GoogleSerperSearchResultsProvider
 from chatflock.web_research.web_research import WebResearchTool
+from examples.common import create_chat_model, get_max_context_size
 
-if __name__ == "__main__":
-    load_dotenv()
-    chat_model = ChatOpenAI(temperature=0.0, model="gpt-4-1106-preview")
 
-    chat_model_for_page_analysis = ChatOpenAI(temperature=0.0, model="gpt-3.5-turbo-1106")
+def chatgpt_clone_with_additional_tools(
+    model: str = "gpt-4-1106-preview",
+    model_for_page_analysis: str = "gpt-3.5-turbo-1106",
+    temperature: float = 0.0,
+    temperature_for_page_analysis: float = 0.0,
+) -> None:
+    chat_model = create_chat_model(model=model, temperature=temperature)
+    chat_model_for_page_analysis = create_chat_model(
+        model=model_for_page_analysis, temperature=temperature_for_page_analysis
+    )
 
-    try:
-        max_context_size = OpenAI.modelname_to_contextsize(chat_model_for_page_analysis.model_name)
-    except ValueError:
-        max_context_size = 12000
+    max_context_size_for_page_analysis = get_max_context_size(chat_model_for_page_analysis) or 12_000
 
     web_search = WebSearch(
         chat_model=chat_model,
@@ -35,8 +38,10 @@ if __name__ == "__main__":
         page_query_analyzer=OpenAIChatPageQueryAnalyzer(
             chat_model=chat_model_for_page_analysis,
             # Should `pip install selenium webdriver_manager` to use this
-            page_retriever=SeleniumPageRetriever(headless=True),
-            text_splitter=TokenTextSplitter(chunk_size=max_context_size, chunk_overlap=max_context_size // 5),
+            page_retriever=SeleniumPageRetriever(headless=False),
+            text_splitter=TokenTextSplitter(
+                chunk_size=max_context_size_for_page_analysis, chunk_overlap=max_context_size_for_page_analysis // 5
+            ),
             use_first_split_only=True,
         ),
     )
@@ -46,7 +51,7 @@ if __name__ == "__main__":
         name="Assistant",
         chat_model=chat_model,
         tools=[
-            CodeExecutionTool(executor=DockerCodeExecutor(spinner=spinner), spinner=spinner),
+            CodeExecutionTool(executor=LocalCodeExecutor(spinner=spinner), spinner=spinner),
             WebResearchTool(web_search=web_search, n_results=3, spinner=spinner),
         ],
         spinner=spinner,
@@ -61,3 +66,9 @@ if __name__ == "__main__":
 
     chat_conductor = RoundRobinChatConductor()
     chat_conductor.initiate_chat_with_result(chat=chat)
+
+
+if __name__ == "__main__":
+    load_dotenv()
+
+    typer.run(chatgpt_clone_with_additional_tools)

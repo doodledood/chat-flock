@@ -36,7 +36,7 @@ LOGGER.setLevel(logging.NOTSET)
 class SeleniumPageRetriever(PageRetriever):
     def __init__(
         self,
-        headless: bool = True,
+        headless: bool = False,
         main_page_timeout: int = 10,
         iframe_timeout: int = 10,
         main_page_min_wait: int = 2,

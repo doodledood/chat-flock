@@ -4,7 +4,7 @@ import re
 
 from halo import Halo
 from langchain.callbacks.manager import CallbackManagerForToolRun
-from langchain.chat_models.openai import ChatOpenAI
+from langchain.chat_models.base import BaseChatModel
 from langchain.tools import BaseTool, Tool
 from pydantic.v1 import BaseModel, Field
 from tenacity import RetryError
@@ -52,7 +52,7 @@ def url_unsupported(url):
 class WebSearch:
     def __init__(
         self,
-        chat_model: ChatOpenAI,
+        chat_model: BaseChatModel,
         search_results_provider: SearchResultsProvider,
         page_query_analyzer: PageQueryAnalyzer,
         skip_results_if_answer_snippet_found: bool = True,
@@ -65,7 +65,9 @@ class WebSearch:
     def get_answer(
         self, query: str, n_results: int = 3, urls: Optional[List[str]] = None, spinner: Optional[Halo] = None
     ) -> Tuple[bool, str]:
+        original_spinner_text = None if spinner is None else spinner.text
         qna = []
+
         if urls is None:
             if spinner is not None:
                 spinner.start(f'Getting search results for "{query}"...')
@@ -210,6 +212,9 @@ class WebSearch:
 
         if spinner is not None:
             spinner.succeed(f"Done searching the web.")
+
+            if original_spinner_text is not None:
+                spinner.start(original_spinner_text)
 
         return True, final_answer
 
