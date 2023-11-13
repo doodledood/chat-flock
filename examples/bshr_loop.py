@@ -1,3 +1,4 @@
+# Based directly on David Shaprio's BSHR Loop: https://github.com/daveshap/BSHR_Loop
 from typing import Optional
 
 from pathlib import Path
@@ -19,7 +20,7 @@ def bshr_loop(
     model_for_page_analysis: str = "gpt-3.5-turbo-1106",
     temperature: float = 0.0,
     temperature_for_page_analysis: float = 0.0,
-    n_search_results: int = 2,
+    n_search_results: int = 3,
     state_file_path: Optional[str] = "output/bshr_state.json",
 ) -> None:
     if state_file_path is not None:
@@ -35,7 +36,7 @@ def bshr_loop(
     page_retriever = SeleniumPageRetriever()
     web_search = WebSearch(
         chat_model=chat_model,
-        # Make sure you have a valid API key in your .env file: SERPER_API_KEY=...
+        # Make sure you have a valid API Key for Serper in your .env file: SERPER_API_KEY=...
         search_results_provider=GoogleSerperSearchResultsProvider(),
         page_query_analyzer=OpenAIChatPageQueryAnalyzer(
             chat_model=chat_model_for_analysis,
