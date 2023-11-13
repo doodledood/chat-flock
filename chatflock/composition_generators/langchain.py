@@ -261,7 +261,13 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
                                     list=[
                                         "Only individual participants can be given tools.",
                                         "You must only choose a tool from the AVAILABLE PARTICIPANT TOOLS list.",
-                                        "A tools should be given to a participant only if it can help them achieve the goal.",
+                                        "A tools should be given to a participant only if it can help them fulfill their personal mission better.",
+                                    ],
+                                ),
+                                Section(
+                                    name="Correct Hierarchical Composition",
+                                    list=[
+                                        "If you add a team, make sure to add the team as a participant, and not its individual members."
                                     ],
                                 ),
                             ],
@@ -361,7 +367,7 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
         messages = chat.get_messages()
         messages_list = [f"- {message.sender_name}: {message.content}" for message in messages]
 
-        available_tools_list = list(set(f'{x.name}: "{x.description}"' for x in participant_available_tools or []))
+        available_tools_list = list({f'{x.name}: "{x.description}"' for x in participant_available_tools or []})
 
         active_participants = chat.get_active_participants()
 

@@ -112,6 +112,15 @@ class LangChainBasedAIChatParticipant(ActiveChatParticipant):
                                 ),
                             ),
                             Section(
+                                name="Guidelines",
+                                list=[
+                                    "Your personal mission is the most important thing to you. You should always "
+                                    "prioritize it.",
+                                    "If a chat goal is provided, you should still follow your personal mission but "
+                                    "in a way that helps the group achieve the chat goal.",
+                                ],
+                            ),
+                            Section(
                                 name="Rules",
                                 list=[
                                     "You do not have to respond directly to the one who sent you a message. You can respond "

@@ -3,7 +3,6 @@ from typing import Any
 import typer
 from dotenv import load_dotenv
 from halo import Halo
-from langchain.llms.openai import OpenAI
 from langchain.memory import ConversationSummaryBufferMemory
 
 from chatflock.backing_stores import InMemoryChatDataBackingStore
@@ -52,8 +51,9 @@ def automatic_hierarchical_chat_composition(model: str = "gpt-4-1106-preview", t
         initial_participants=[user],
     )
 
-    # Not necessary in practice since initiation is done automatically when calling `initiate_chat_with_result`.
-    # However, this is needed to eagerly generate the composition. Default is lazy.
+    # It's not necessary in practice to manually call `initialize_chat` since initiation is done automatically
+    # when calling `initiate_chat_with_result`. However, this is needed to eagerly generate the composition.
+    # Default is lazy and will happen when the chat is initiated.
     chat_conductor.initialize_chat(
         chat=chat,
         # Only relevant when passing in a composition generator
