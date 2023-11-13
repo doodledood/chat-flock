@@ -10,7 +10,7 @@
 [![Security: bandit](https://img.shields.io/badge/security-bandit-green.svg)](https://github.com/PyCQA/bandit)
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](.pre-commit-config.yaml)
 [![Semantic Versions](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--versions-e10079.svg)](https://github.com/doodledood/chat-flock/releases)
-[![License](https://img.shields.io/github/license/chat-flock/chat-flock)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 ![Coverage Report](assets/images/coverage.svg)
 
 Driving Dynamic Multi-Participant Chat Interactions for AI and Human Discourse 🤖
