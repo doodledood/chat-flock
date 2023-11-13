@@ -1,10 +1,8 @@
 from typing import Any
 
+import typer
 from dotenv import load_dotenv
 from halo import Halo
-from langchain.cache import SQLiteCache
-from langchain.chat_models import ChatOpenAI
-from langchain.globals import set_llm_cache
 from langchain.llms.openai import OpenAI
 from langchain.memory import ConversationSummaryBufferMemory
 
@@ -17,22 +15,19 @@ from chatflock.composition_generators.langchain import LangChainBasedAIChatCompo
 from chatflock.conductors import LangChainBasedAIChatConductor
 from chatflock.participants.user import UserChatParticipant
 from chatflock.renderers import TerminalChatRenderer
+from examples.common import create_chat_model, get_max_context_size
 
-if __name__ == "__main__":
-    load_dotenv()
 
-    set_llm_cache(SQLiteCache(database_path="../../output/llm_cache.db"))
-
-    chat_model = ChatOpenAI(temperature=0.0, model="gpt-4-1106-preview")
+def automatic_hierarchical_chat_composition(model: str = "gpt-4-1106-preview", temperature: float = 0.0) -> None:
+    chat_model = create_chat_model(model=model, temperature=temperature)
 
     def create_default_backing_store() -> ChatDataBackingStore:
-        try:
+        max_context_size = get_max_context_size(chat_model)
+        if max_context_size is not None:
             return LangChainMemoryBasedChatDataBackingStore(
-                memory=ConversationSummaryBufferMemory(
-                    llm=chat_model, max_token_limit=OpenAI.modelname_to_contextsize(chat_model.model_name)
-                )
+                memory=ConversationSummaryBufferMemory(llm=chat_model, max_token_limit=max_context_size)
             )
-        except ValueError:
+        else:
             return InMemoryChatDataBackingStore()
 
     def create_chat(**kwargs: Any) -> Chat:
@@ -71,3 +66,9 @@ if __name__ == "__main__":
     # You can also pass in a composition suggestion here.
     result = chat_conductor.initiate_chat_with_result(chat=chat)
     print(result)
+
+
+if __name__ == "__main__":
+    load_dotenv()
+
+    typer.run(automatic_hierarchical_chat_composition)
