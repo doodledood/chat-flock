@@ -46,7 +46,8 @@ def three_way_ai_conductor(model: str = "gpt-4-1106-preview", temperature: float
         chat_model=chat_model,
         spinner=spinner,
         # This tells the conductor how to select the next speaker
-        participants_interaction_schema="The User is a customer at a Cafe called 'Coffee Time'. The bartender should go first and greet the customer. "
+        participants_interaction_schema="The User is a customer at a Cafe called 'Coffee Time'. "
+        "The bartender should go first and greet the customer. "
         "When the user asks for food and orders something, the bartender should ask the cook to cook the food. "
         "There might be some conversation between the cook and bartender. "
         "The cook should then give the food to the bartender and the bartender should give the food to the user. "
