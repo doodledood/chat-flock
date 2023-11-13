@@ -48,6 +48,8 @@ beautifulsoup4 = "^4.12.2"
 tenacity = "^8.2.3"
 questionary = "^2.0.1"
 docker = "^6.1.3"
+openai = "^1.2.3"
+tiktoken = "^0.5.1"
 [tool.poetry.dev-dependencies]
 bandit = "^1.7.1"
 black = { version = "^23.11.0", allow-prereleases = true }

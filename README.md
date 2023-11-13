@@ -35,6 +35,8 @@ ChatFlock is a Python library that revolutionizes the way multi-participant chat
 
 At the heart of ChatFlock is the Conductor, a novel entity that determines the speaking order, enabling seamless coordination among AI and human participants. This orchestration allows for nuanced conversations and decision-making processes that go beyond traditional chat systems.
 
+**NOTE: We are still in a very early and experimental stage of development, so the library might be unstable and the API might change relatively frequently. As soon as we reach a stable version, everything will get properly tested and documented.**
+
 ### 📝 Usage Examples 
 
 #### 2-Participant Chat

@@ -1,6 +1,6 @@
+import typer
 from dotenv import load_dotenv
 from halo import Halo
-from langchain.chat_models import ChatOpenAI
 
 from chatflock.backing_stores.in_memory import InMemoryChatDataBackingStore
 from chatflock.base import Chat
@@ -8,10 +8,11 @@ from chatflock.conductors.round_robin import RoundRobinChatConductor
 from chatflock.participants.langchain import LangChainBasedAIChatParticipant
 from chatflock.participants.user import UserChatParticipant
 from chatflock.renderers.terminal import TerminalChatRenderer
+from examples.common import create_chat_model
 
-if __name__ == "__main__":
-    load_dotenv()
-    chat_model = ChatOpenAI(temperature=0.0, model="gpt-4-1106-preview")
+
+def chatgpt_clone(model: str = "gpt-4-1106-preview", temperature: float = 0.0) -> None:
+    chat_model = create_chat_model(model=model, temperature=temperature)
 
     spinner = Halo(spinner="dots")
     ai = LangChainBasedAIChatParticipant(name="Assistant", chat_model=chat_model, spinner=spinner)
@@ -24,3 +25,9 @@ if __name__ == "__main__":
 
     chat_conductor = RoundRobinChatConductor()
     chat_conductor.initiate_chat_with_result(chat=chat)
+
+
+if __name__ == "__main__":
+    load_dotenv()
+
+    typer.run(chatgpt_clone)

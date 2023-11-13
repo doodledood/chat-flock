@@ -36,3 +36,5 @@ venv
 .AppleDouble
 .LSOverride
 ._*
+
+.env

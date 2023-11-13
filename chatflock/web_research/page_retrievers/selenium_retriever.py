@@ -36,7 +36,7 @@ LOGGER.setLevel(logging.NOTSET)
 class SeleniumPageRetriever(PageRetriever):
     def __init__(
         self,
-        headless: bool = True,
+        headless: bool = False,
         main_page_timeout: int = 10,
         iframe_timeout: int = 10,
         main_page_min_wait: int = 2,
@@ -105,8 +105,8 @@ class SeleniumPageRetriever(PageRetriever):
                 try:
                     # Wait for the iframe to be available and for its document to be fully loaded
                     WebDriverWait(driver, self.iframe_timeout).until(
-                        lambda d: EC.frame_to_be_available_and_switch_to_it(iframe)(d)
-                        and d.execute_script("return document.readyState") == "complete"  # type: ignore
+                        lambda d: EC.frame_to_be_available_and_switch_to_it(iframe)(d)  # type: ignore
+                        and d.execute_script("return document.readyState") == "complete"
                     )
 
                     # Set a temporary ID on the iframe, so we can find it later

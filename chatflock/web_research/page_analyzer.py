@@ -4,7 +4,7 @@ import abc
 
 from bs4 import BeautifulSoup, Comment, NavigableString
 from halo import Halo
-from langchain.chat_models import ChatOpenAI
+from langchain.chat_models.base import BaseChatModel
 from langchain.text_splitter import TextSplitter
 from pydantic import BaseModel
 
@@ -67,7 +67,7 @@ class PageQueryAnalyzer(abc.ABC):
 class OpenAIChatPageQueryAnalyzer(PageQueryAnalyzer):
     def __init__(
         self,
-        chat_model: ChatOpenAI,
+        chat_model: BaseChatModel,
         page_retriever: PageRetriever,
         text_splitter: TextSplitter,
         use_first_split_only: bool = True,
