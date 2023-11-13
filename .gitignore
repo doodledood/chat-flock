@@ -620,4 +620,4 @@ MigrationBackup/
 # dotenv
 .env
 
-*.db
+examples/output

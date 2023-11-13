@@ -250,9 +250,8 @@ class Chat:
         max_total_messages: Optional[int] = None,
         hide_messages: bool = False,
     ):
-        assert max_total_messages is None or max_total_messages > 0, (
-            "Max total messages must be None or greater than " "0."
-        )
+        if max_total_messages is not None and max_total_messages <= 0:
+            raise ValueError("Max total messages must be None or greater than 0.")
 
         self.backing_store = backing_store
         self.renderer = renderer

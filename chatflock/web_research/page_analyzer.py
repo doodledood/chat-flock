@@ -8,15 +8,11 @@ from langchain.chat_models.base import BaseChatModel
 from langchain.text_splitter import TextSplitter
 from pydantic import BaseModel
 
-from chatflock.backing_stores import InMemoryChatDataBackingStore
-from chatflock.base import Chat
-from chatflock.conductors import RoundRobinChatConductor
 from chatflock.parsing_utils import string_output_to_pydantic
-from chatflock.renderers import NoChatRenderer
 from chatflock.structured_string import Section, StructuredString
 
 from ..participants.langchain import LangChainBasedAIChatParticipant
-from ..participants.user import UserChatParticipant
+from ..use_cases.request_response import get_response
 from .errors import NonTransientHTTPError, TransientHTTPError
 from .page_retrievers import PageRetriever
 
@@ -84,6 +80,8 @@ class OpenAIChatPageQueryAnalyzer(PageQueryAnalyzer):
             return PageQueryAnalysisResult(
                 answer=f"The query could not be answered because an error occurred while retrieving the page: {e}"
             )
+        finally:
+            self.page_retriever.close()
 
         cleaned_html = clean_html(html)
 
@@ -92,71 +90,65 @@ class OpenAIChatPageQueryAnalyzer(PageQueryAnalyzer):
         answer = "No answer yet."
         for i, doc in enumerate(docs):
             text = doc.page_content
-            chat = Chat(
-                backing_store=InMemoryChatDataBackingStore(),
-                renderer=NoChatRenderer(),
-                initial_participants=[
-                    UserChatParticipant(),
-                    LangChainBasedAIChatParticipant(
-                        name="Web Page Query Answerer",
-                        role="Web Page Query Answerer",
-                        personal_mission="Answer queries based on provided (partial) web page content from the web.",
-                        chat_model=self.chat_model,
-                        other_prompt_sections=[
+
+            query_answerer = LangChainBasedAIChatParticipant(
+                name="Web Page Query Answerer",
+                role="Web Page Query Answerer",
+                personal_mission="Answer queries based on provided (partial) web page content from the web.",
+                chat_model=self.chat_model,
+                other_prompt_sections=[
+                    Section(
+                        name="Crafting a Query Answer",
+                        sub_sections=[
                             Section(
-                                name="Crafting a Query Answer",
-                                sub_sections=[
-                                    Section(
-                                        name="Process",
-                                        list=[
-                                            "Analyze the query and the given content",
-                                            "If context is provided, use it to answer the query.",
-                                            "Summarize the answer in a comprehensive, yet succinct way.",
-                                        ],
-                                        list_item_prefix=None,
-                                    ),
-                                    Section(
-                                        name="Guidelines",
-                                        list=[
-                                            "If the answer is not found in the page content, it's insufficent, or not relevant "
-                                            "to the query at all, state it clearly.",
-                                            "Do not fabricate information. Stick to provided content.",
-                                            "Provide context for the next call (e.g., if a paragraph was cut short, include "
-                                            "relevant header information, section, etc. for continuity). Assume the content is "
-                                            "partial content from the page. Be very detailed in the context.",
-                                            "If unable to answer but found important information, include it in the context "
-                                            "for the next call.",
-                                            "Pay attention to the details of the query and make sure the answer is suitable "
-                                            "for the intent of the query.",
-                                            "A potential answer might have been provided. This means you thought you found "
-                                            "the answer in a previous partial text for the same page. You should double-check "
-                                            "that and provide an alternative revised answer if you think it's wrong, "
-                                            "or repeat it if you think it's right or cannot be validated using the current "
-                                            "text.",
-                                        ],
-                                    ),
+                                name="Process",
+                                list=[
+                                    "Analyze the query and the given content",
+                                    "If context is provided, use it to answer the query.",
+                                    "Summarize the answer in a comprehensive, yet succinct way.",
                                 ],
-                            )
+                                list_item_prefix=None,
+                            ),
+                            Section(
+                                name="Guidelines",
+                                list=[
+                                    "If the answer is not found in the page content, it's insufficent, or not relevant "
+                                    "to the query at all, state it clearly.",
+                                    "Do not fabricate information. Stick to provided content.",
+                                    "Provide context for the next call (e.g., if a paragraph was cut short, include "
+                                    "relevant header information, section, etc. for continuity). Assume the content is "
+                                    "partial content from the page. Be very detailed in the context.",
+                                    "If unable to answer but found important information, include it in the context "
+                                    "for the next call.",
+                                    "Pay attention to the details of the query and make sure the answer is suitable "
+                                    "for the intent of the query.",
+                                    "A potential answer might have been provided. This means you thought you found "
+                                    "the answer in a previous partial text for the same page. You should double-check "
+                                    "that and provide an alternative revised answer if you think it's wrong, "
+                                    "or repeat it if you think it's right or cannot be validated using the current "
+                                    "text.",
+                                ],
+                            ),
                         ],
-                    ),
+                    )
                 ],
-                max_total_messages=2,
             )
-            chat_conductor = RoundRobinChatConductor()
-            final_answer = chat_conductor.initiate_chat_with_result(
-                chat=chat,
-                initial_message=str(
+
+            final_answer, _ = get_response(
+                query=str(
                     StructuredString(
                         sections=[
                             Section(name="Query", text=query),
                             Section(name="Url", text=url),
                             Section(name="Title", text=title),
                             Section(name="Previous Answer", text=answer),
-                            Section(name="Page Content", text=text),
+                            Section(name="Page Content", text=f"```{text}```"),
                         ]
                     )
                 ),
+                answerer=query_answerer,
             )
+
             result = string_output_to_pydantic(
                 output=final_answer, chat_model=self.chat_model, output_schema=PageQueryAnalysisResult
             )

@@ -32,13 +32,14 @@ def chatgpt_clone_with_additional_tools(
 
     max_context_size_for_page_analysis = get_max_context_size(chat_model_for_page_analysis) or 12_000
 
+    page_retriever = SeleniumPageRetriever()
     web_search = WebSearch(
         chat_model=chat_model,
         search_results_provider=GoogleSerperSearchResultsProvider(),
         page_query_analyzer=OpenAIChatPageQueryAnalyzer(
             chat_model=chat_model_for_page_analysis,
             # Should `pip install selenium webdriver_manager` to use this
-            page_retriever=SeleniumPageRetriever(headless=False),
+            page_retriever=page_retriever,
             text_splitter=TokenTextSplitter(
                 chunk_size=max_context_size_for_page_analysis, chunk_overlap=max_context_size_for_page_analysis // 5
             ),
@@ -66,6 +67,8 @@ def chatgpt_clone_with_additional_tools(
 
     chat_conductor = RoundRobinChatConductor()
     chat_conductor.initiate_chat_with_result(chat=chat)
+
+    page_retriever.close()
 
 
 if __name__ == "__main__":

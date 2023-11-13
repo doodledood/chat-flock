@@ -37,8 +37,9 @@ class Section:
 class StructuredString:
     sections: List[Section]
 
-    def __getitem__(self, item):
-        assert isinstance(item, str)
+    def __getitem__(self, item) -> Section:
+        if not isinstance(item, str):
+            raise TypeError(f"Item must be of type str, not {type(item)}.")
 
         relevant_sections = [section for section in self.sections if section.name == item]
         if len(relevant_sections) == 0:
@@ -46,9 +47,12 @@ class StructuredString:
 
         return relevant_sections[0]
 
-    def __setitem__(self, key, value):
-        assert isinstance(key, str)
-        assert isinstance(value, Section)
+    def __setitem__(self, key, value) -> None:
+        if not isinstance(key, str):
+            raise TypeError(f"Key must be of type str, not {type(key)}.")
+
+        if not isinstance(value, Section):
+            raise TypeError(f"Value must be of type Section, not {type(value)}.")
 
         try:
             section = self[key]
@@ -63,5 +67,5 @@ class StructuredString:
 
         return result
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()

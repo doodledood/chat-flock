@@ -57,7 +57,7 @@ At the heart of ChatFlock is the Conductor, a novel entity that determines the s
 - [Multi-Participant Chat with a Composition Generator with a deep (3+ level) Hierarchical Composition](examples/automatic_hierarchical_chat_composition.py)
 
 #### End-to-End Examples
-- [BSHR (Brainstorm-Search-Hypothesize-Refine) Loop](chatflock/use_cases/bshr.py) - Based on [David Shapiro's](https://github.com/daveshap/BSHR_Loop) idea.
+- [BSHR (Brainstorm-Search-Hypothesize-Refine) Loop](examples/bshr_loop.py) - Based on [David Shapiro's](https://github.com/daveshap/BSHR_Loop) idea.
 
 ## 🚀 Features
 

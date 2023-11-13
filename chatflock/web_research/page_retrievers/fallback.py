@@ -5,7 +5,8 @@ from .base import PageRetriever
 
 class RetrieverWithFallback(PageRetriever):
     def __init__(self, retrievers: Sequence[PageRetriever]):
-        assert len(retrievers) > 0, "Must provide at least one retriever."
+        if len(retrievers) == 0:
+            raise ValueError("Must provide at least one retriever.")
 
         self.retrievers = retrievers
 

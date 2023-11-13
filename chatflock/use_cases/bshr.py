@@ -3,21 +3,14 @@ from typing import Any, Dict, Generator, Generic, List, Optional, Type, TypeVar
 
 import datetime
 import json
-import os
 from functools import partial
-from pathlib import Path
 
 import questionary
-from dotenv import load_dotenv
 from halo import Halo
-from langchain.cache import SQLiteCache
 from langchain.callbacks.manager import CallbackManagerForToolRun
-from langchain.chat_models import ChatOpenAI
 from langchain.chat_models.base import BaseChatModel
-from langchain.globals import set_llm_cache
 from langchain.llms.openai import OpenAI
 from langchain.memory import ConversationSummaryBufferMemory
-from langchain.text_splitter import TokenTextSplitter
 from langchain.tools import BaseTool
 from pydantic import BaseModel, Field
 
@@ -33,9 +26,6 @@ from chatflock.sequencial_process import SequentialProcess, Step
 from chatflock.structured_string import Section, StructuredString
 from chatflock.use_cases.request_response import get_response
 from chatflock.web_research import WebSearch
-from chatflock.web_research.page_analyzer import OpenAIChatPageQueryAnalyzer
-from chatflock.web_research.page_retrievers.selenium_retriever import SeleniumPageRetriever
-from chatflock.web_research.search import GoogleSerperSearchResultsProvider
 from chatflock.web_research.web_research import WebResearchTool
 
 
@@ -63,7 +53,7 @@ def load_state(state_file: Optional[str]) -> Optional[BHSRState]:
         return None
 
     try:
-        with open(state_file, "r") as f:
+        with open(state_file) as f:
             data = json.load(f)
             return BHSRState.model_validate(data)
     except FileNotFoundError:
@@ -445,7 +435,7 @@ def run_brainstorm_search_hypothesize_refine_loop(
                 break
 
             has_feedback = questionary.confirm(
-                "The information need seems to have have been satisficed. Do you have " "any feedback?"
+                "The information need seems to have have been satisficed. Do you have any feedback?"
             ).ask()
 
             if not has_feedback:
@@ -495,51 +485,3 @@ class BrainstormSearchHypothesizeRefineTool(BaseTool, Generic[TArgSchema]):
         )
 
         return hypothesis
-
-
-if __name__ == "__main__":
-    load_dotenv()
-
-    output_dir = Path(os.getenv("OUTPUT_DIR", "../../output"))
-    output_dir.mkdir(exist_ok=True, parents=True)
-
-    n_search_results = 2
-
-    state_file = str(output_dir / "bshr_state.json")
-    llm_cache = SQLiteCache(database_path=str(output_dir / "llm_cache.db"))
-    set_llm_cache(llm_cache)
-
-    chat_model = ChatOpenAI(temperature=0.0, model="gpt-4-1106-preview")
-    chat_model_for_analysis = ChatOpenAI(
-        temperature=0.0,
-        model="gpt-3.5-turbo-1106",
-    )
-
-    try:
-        max_context_size = OpenAI.modelname_to_contextsize(chat_model_for_analysis.model_name)
-    except ValueError:
-        max_context_size = 12000
-
-    web_search = WebSearch(
-        chat_model=chat_model,
-        search_results_provider=GoogleSerperSearchResultsProvider(),
-        page_query_analyzer=OpenAIChatPageQueryAnalyzer(
-            chat_model=chat_model_for_analysis,
-            page_retriever=SeleniumPageRetriever(),
-            text_splitter=TokenTextSplitter(chunk_size=max_context_size, chunk_overlap=max_context_size // 5),
-            use_first_split_only=True,
-        ),
-    )
-
-    spinner = Halo(spinner="dots")
-
-    hypothesis = run_brainstorm_search_hypothesize_refine_loop(
-        confirm_satisficed=True,
-        web_search=web_search,
-        chat_model=chat_model,
-        n_search_results=n_search_results,
-        state_file=state_file,
-        spinner=spinner,
-    )
-
-    print(f"Final Answer:\n----------------\n{hypothesis}\n----------------")

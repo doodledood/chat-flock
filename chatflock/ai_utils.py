@@ -23,11 +23,12 @@ def execute_chat_model_messages(
 ) -> str:
     chat_model_args = chat_model_args or {}
 
-    assert "functions" not in chat_model_args, (
-        "The `functions` argument is reserved for the "
-        "`execute_chat_model_messages` function. If you want to add more "
-        "functions use the `functions` argument to this method."
-    )
+    if "functions" in chat_model_args:
+        raise ValueError(
+            "The `functions` argument is reserved for the "
+            "`execute_chat_model_messages` function. If you want to add more "
+            "functions use the `functions` argument to this method."
+        )
 
     if tools is not None and len(tools) > 0:
         chat_model_args["functions"] = [format_tool_to_openai_function(tool) for tool in tools]

@@ -38,23 +38,32 @@ class SeleniumPageRetriever(PageRetriever):
         self,
         headless: bool = False,
         main_page_timeout: int = 10,
-        iframe_timeout: int = 10,
         main_page_min_wait: int = 2,
         driver_implicit_wait: int = 1,
         driver_page_load_timeout: Optional[int] = None,
+        include_iframe_html: bool = True,
+        iframe_timeout: int = 10,
         user_agent: Optional[str] = None,
     ):
-        assert main_page_timeout >= main_page_min_wait, "Timeout must be greater than or equal to minimum_wait_time."
+        if main_page_timeout < main_page_min_wait:
+            raise ValueError("Main page timeout must be greater than or equal to main_page_min_wait.")
 
         self.main_page_min_wait = main_page_min_wait
         self.main_page_timeout = main_page_timeout
         self.driver_implicit_wait = driver_implicit_wait
         self.driver_page_load_timeout = driver_page_load_timeout or main_page_timeout
+        self.include_iframe_html = include_iframe_html
         self.iframe_timeout = iframe_timeout
         self.user_agent = user_agent
         self.headless = headless
 
-    def create_driver(self) -> Tuple[WebDriver, Service]:
+        self.service: Optional[Service] = None
+        self.driver: Optional[WebDriver] = None
+
+    def create_driver_and_service(self) -> Tuple[WebDriver, Service]:
+        if self.driver is not None and self.service is not None:
+            return self.driver, self.service
+
         chrome_options = Options()
 
         if self.headless:
@@ -95,39 +104,40 @@ class SeleniumPageRetriever(PageRetriever):
                 lambda d: d.execute_script("return document.readyState") == "complete"
             )
 
-            # Find all iframe elements
-            iframes = driver.find_elements(By.TAG_NAME, "iframe")
-
             iframe_contents = {}
 
-            # Iterate over each iframe, switch to it, and capture its HTML
-            for iframe in iframes:
-                try:
-                    # Wait for the iframe to be available and for its document to be fully loaded
-                    WebDriverWait(driver, self.iframe_timeout).until(
-                        lambda d: EC.frame_to_be_available_and_switch_to_it(iframe)(d)  # type: ignore
-                        and d.execute_script("return document.readyState") == "complete"
-                    )
+            if self.include_iframe_html:
+                # Find all iframe elements
+                iframes = driver.find_elements(By.TAG_NAME, "iframe")
 
-                    # Set a temporary ID on the iframe, so we can find it later
-                    driver.execute_script(
-                        "arguments[0].setAttribute('selenium-temp-id', arguments[1])", iframe, iframe.id
-                    )
-                    iframe_id = iframe.get_attribute("selenium-temp-id")
+                # Iterate over each iframe, switch to it, and capture its HTML
+                for iframe in iframes:
+                    try:
+                        # Wait for the iframe to be available and for its document to be fully loaded
+                        WebDriverWait(driver, self.iframe_timeout).until(
+                            lambda d: EC.frame_to_be_available_and_switch_to_it(iframe)(d)  # type: ignore
+                            and d.execute_script("return document.readyState") == "complete"
+                        )
 
-                    # Capture the iframe HTML
-                    iframe_html = driver.page_source
+                        # Set a temporary ID on the iframe, so we can find it later
+                        driver.execute_script(
+                            "arguments[0].setAttribute('selenium-temp-id', arguments[1])", iframe, iframe.id
+                        )
+                        iframe_id = iframe.get_attribute("selenium-temp-id")
 
-                    iframe_soup = BeautifulSoup(iframe_html, "html.parser")
-                    iframe_body = iframe_soup.find("body")
+                        # Capture the iframe HTML
+                        iframe_html = driver.page_source
 
-                    iframe_contents[iframe_id] = iframe_body
-                except (StaleElementReferenceException, NoSuchFrameException, NoSuchElementException):
-                    # If the iframe is no longer available, skip it
-                    pass
-                finally:
-                    # Switch back to the main content after each iframe
-                    driver.switch_to.default_content()
+                        iframe_soup = BeautifulSoup(iframe_html, "html.parser")
+                        iframe_body = iframe_soup.find("body")
+
+                        iframe_contents[iframe_id] = iframe_body
+                    except (StaleElementReferenceException, NoSuchFrameException, NoSuchElementException):
+                        # If the iframe is no longer available, skip it
+                        pass
+                    finally:
+                        # Switch back to the main content after each iframe
+                        driver.switch_to.default_content()
 
             # Capture the main document HTML
             main_html = driver.page_source
@@ -154,10 +164,8 @@ class SeleniumPageRetriever(PageRetriever):
         stop=stop_after_attempt(3),
     )
     def retrieve_html(self, url: str, **kwargs: Any) -> str:
-        driver = None
-        service = None
         try:
-            driver, service = self.create_driver()
+            driver, service = self.create_driver_and_service()
 
             # Implicitly wait for elements to be available and set timeout
             driver.implicitly_wait(self.driver_implicit_wait)
@@ -187,9 +195,10 @@ class SeleniumPageRetriever(PageRetriever):
             return full_html  # or driver.page_source if you wish to return the original source
         except TimeoutException:
             raise TransientHTTPError(408, "Timeout while waiting for the page to load.")
-        finally:
-            if driver:
-                driver.quit()
 
-            if service:
-                service.stop()
+    def close(self):
+        if self.driver:
+            self.driver.quit()
+
+        if self.service:
+            self.service.stop()
