@@ -1,7 +1,7 @@
 from typing import Any, Dict, Optional, Sequence
 
 import io
-import subprocess
+import subprocess  # nosec - Acknowledged that this is dangerous code execution, we have to use it, though.
 import sys
 import traceback
 
@@ -24,7 +24,9 @@ class LocalCodeExecutor(CodeExecutor):
             if self.spinner is not None:
                 self.spinner.start("🐍 Installing dependencies...")
 
-            subprocess.check_call([sys.executable, "-m", "pip", "install", *dependencies])
+            subprocess.check_call(
+                [sys.executable, "-m", "pip", "install", *dependencies]
+            )  # nosec - Acknowledged that this is dangerous code execution, we have to use it, though.
 
             if self.spinner is not None:
                 self.spinner.stop_and_persist(symbol="🐍", text="Dependencies installed.")
@@ -39,7 +41,9 @@ class LocalCodeExecutor(CodeExecutor):
                 if not line:
                     continue
 
-                exec(code, None, local_vars)
+                exec(
+                    code, None, local_vars
+                )  # nosec - Acknowledged that this is dangerous code execution, we have to use it, though.
         except:
             return f"Error executing code: {traceback.format_exc()}"
         finally:
