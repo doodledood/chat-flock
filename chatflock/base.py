@@ -209,7 +209,6 @@ class ChatRenderer(abc.ABC):
 class GeneratedChatComposition:
     participants: Sequence[ChatParticipant]
     participants_interaction_schema: str
-    termination_condition: str
 
 
 class ChatCompositionGenerator(abc.ABC):
@@ -217,9 +216,9 @@ class ChatCompositionGenerator(abc.ABC):
     def generate_composition_for_chat(
         self,
         chat: "Chat",
+        goal: str,
         composition_suggestion: Optional[str] = None,
-        participants_interaction_schema: Optional[str] = None,
-        termination_condition: Optional[str] = None,
+        interaction_schema: Optional[str] = None,
     ) -> GeneratedChatComposition:
         raise NotImplementedError()
 
@@ -227,7 +226,6 @@ class ChatCompositionGenerator(abc.ABC):
 class Chat:
     backing_store: ChatDataBackingStore
     renderer: ChatRenderer
-    goal: str
     name: Optional[str] = None
     max_total_messages: Optional[int] = None
     hide_messages: bool = False
@@ -238,7 +236,6 @@ class Chat:
         renderer: ChatRenderer,
         initial_participants: Optional[Sequence[ChatParticipant]] = None,
         name: Optional[str] = None,
-        goal: str = "This is a regular chatroom, the goal is to just have a conversation.",
         max_total_messages: Optional[int] = None,
         hide_messages: bool = False,
     ):
@@ -247,7 +244,6 @@ class Chat:
 
         self.backing_store = backing_store
         self.renderer = renderer
-        self.goal = goal
         self.name = name
         self.hide_messages = hide_messages
         self.max_total_messages = max_total_messages

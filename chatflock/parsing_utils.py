@@ -71,7 +71,6 @@ def chat_messages_to_pydantic(
             pass
 
     parser_chat = Chat(
-        goal="Convert the chat contents to a valid and logical JSON.",
         backing_store=InMemoryChatDataBackingStore(messages=list(chat_messages)),
         renderer=NoChatRenderer(),
         initial_participants=[text_to_json_ai, json_parser],

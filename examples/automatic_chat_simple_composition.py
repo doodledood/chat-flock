@@ -19,6 +19,9 @@ def automatic_simple_chat_composition(model: str = "gpt-4-1106-preview", tempera
     chat_conductor = LangChainBasedAIChatConductor(
         chat_model=chat_model,
         spinner=spinner,
+        # Set up a proper goal so the composition generator can use it to generate the composition that will best fit
+        goal="Come up with a plan for the user to invest their money. The goal is to maximize wealth over the "
+        "long-term, while minimizing risk.",
         # Pass in a composition generator to the conductor
         composition_generator=LangChainBasedAIChatCompositionGenerator(
             chat_model=chat_model,
@@ -28,13 +31,10 @@ def automatic_simple_chat_composition(model: str = "gpt-4-1106-preview", tempera
     chat = Chat(
         backing_store=InMemoryChatDataBackingStore(),
         renderer=TerminalChatRenderer(),
-        # Set up a proper goal so the composition generator can use it to generate the composition that will best fit
-        goal="Come up with a plan for the user to invest their money. The goal is to maximize wealth over the "
-        "long-term, while minimizing risk.",
         initial_participants=[user],
     )
 
-    # Not necessary in practice since initiation is done automatically when calling `initiate_chat_with_result`.
+    # Not necessary in practice since initiation is done automatically when calling `initiate_dialogue`.
     # However, this is needed to eagerly generate the composition. Default is lazy.
     chat_conductor.prepare_chat(chat=chat)
 

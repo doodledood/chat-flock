@@ -29,37 +29,32 @@ def automatic_hierarchical_chat_composition(model: str = "gpt-4-1106-preview", t
         else:
             return InMemoryChatDataBackingStore()
 
-    def create_chat(**kwargs: Any) -> Chat:
-        return Chat(backing_store=create_default_backing_store(), renderer=TerminalChatRenderer(), **kwargs)
-
     spinner = Halo(spinner="dots")
     user = UserChatParticipant(name="User")
     chat_conductor = LangChainBasedAIChatConductor(
         chat_model=chat_model,
         spinner=spinner,
+        # Set up a proper goal so the composition generator can use it to generate the composition that will best fit
+        goal="The goal is to create the best website for the user.",
         # Pass in a composition generator to the conductor
         composition_generator=LangChainBasedAIChatCompositionGenerator(
+            fixed_team_members=[user],
             chat_model=chat_model,
             spinner=spinner,
-            generate_composition_extra_args=dict(create_internal_chat=create_chat),
             participant_available_tools=[CodeExecutionTool(executor=LocalCodeExecutor(), spinner=spinner)],
         ),
     )
-    chat = create_chat(
-        # Set up a proper goal so the composition generator can use it to generate the composition that will best fit
-        goal="The goal is to create the best website for the user.",
-        initial_participants=[user],
-    )
+    chat = Chat(backing_store=create_default_backing_store(), renderer=TerminalChatRenderer())
 
     # It's not necessary in practice to manually call `initialize_chat` since initiation is done automatically
-    # when calling `initiate_chat_with_result`. However, this is needed to eagerly generate the composition.
+    # when calling `initiate_dialogue`. However, this is needed to eagerly generate the composition.
     # Default is lazy and will happen when the chat is initiated.
     chat_conductor.prepare_chat(
         chat=chat,
         # Only relevant when passing in a composition generator
-        composition_suggestion="DevCompany: Includes a CEO, Product Team, Marketing Team, and a Development "
-        "Department. The Development Department includes a Director, QA Team and Development "
-        "Team.",
+        # composition_suggestion="DevCompany: Includes a CEO, Product Team, Marketing Team, and a Development "
+        # "Department. The Development Department includes a Director, QA Team and Development "
+        # "Team.",
     )
     print(f"\nGenerated composition:\n=================\n{chat.active_participants_str}\n=================\n\n")
 

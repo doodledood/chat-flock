@@ -101,7 +101,6 @@ class LangChainBasedAIChatParticipant(ActiveChatParticipant):
                         name="Chat",
                         sub_sections=[
                             Section(name="Name", text=chat.name or "No name provided. Just a general chat."),
-                            Section(name="Goal", text=chat.goal or "No explicit chat goal provided."),
                             Section(
                                 name="Participants",
                                 text="\n".join(
