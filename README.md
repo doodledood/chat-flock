@@ -49,15 +49,10 @@ At the heart of ChatFlock is the Conductor, a novel entity that determines the s
 - [Basic ChatGPT Clone with LangChain Memory](examples/chatgpt_clone_with_langchain_memory.py)
 - [Basic ChatGPT Clone with LangChain-Based Retrieval](examples/chatgpt_clone_with_langchain_retrieval.py)
 
-#### Multi-Participant Chat (Manual Setup)
+#### AI-Directed Multi-Participant Chat
 
-- [3-Way Chat with an AI-based Conductor](examples/three_way_ai_conductor.py)
-- [Multi-Participant Chat with a Group-Based Participant (Manual)](examples/manual_internal_group_participant.py)
-
-#### Multi-Participant Chat (Automatically Composed)
-- [Multi-Participant Chat with a Composition Generator with a 1-level Composition](examples/automatic_chat_simple_composition.py)
-- [Multi-Participant Chat with a Composition Generator with a 2-Level Composition](examples/automatic_chat_simple_composition.py)
-- [Multi-Participant Chat with a Composition Generator with a deep (3+ level) Hierarchical Composition](examples/automatic_hierarchical_chat_composition.py)
+- [AI-Directed Multi-Participant Chat (Manual Composition)](examples/three_way_ai_conductor.py)
+- [AI-Directed Multi-Participant Chat (Automated Composition)](examples/automatic_chat_composition.py)
 
 #### End-to-End Examples
 - [BSHR (Brainstorm-Search-Hypothesize-Refine) Loop](examples/bshr_loop.py) - Based on [David Shapiro's](https://github.com/daveshap/BSHR_Loop) idea.

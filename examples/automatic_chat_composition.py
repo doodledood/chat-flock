@@ -1,5 +1,3 @@
-from typing import Any
-
 import typer
 from dotenv import load_dotenv
 from halo import Halo
@@ -35,7 +33,8 @@ def automatic_hierarchical_chat_composition(model: str = "gpt-4-1106-preview", t
         chat_model=chat_model,
         spinner=spinner,
         # Set up a proper goal so the composition generator can use it to generate the composition that will best fit
-        goal="The goal is to create the best website for the user.",
+        goal="Come up with a plan for the user to invest their money. The goal is to maximize wealth over the "
+        "long-term, while minimizing risk.",
         # Pass in a composition generator to the conductor
         composition_generator=LangChainBasedAIChatCompositionGenerator(
             fixed_team_members=[user],
