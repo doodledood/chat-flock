@@ -100,7 +100,7 @@ class ChatConductor(abc.ABC):
         self.prepare_chat(chat=chat, **kwargs)
 
         active_participants = chat.get_active_participants()
-        if len(active_participants) <= 1:
+        if len(active_participants) <= 0:
             raise NotEnoughActiveParticipantsInChatError(len(active_participants))
 
         self.start_chat(chat=chat)

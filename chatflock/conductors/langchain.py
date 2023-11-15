@@ -62,6 +62,8 @@ class LangChainBasedAIChatConductor(ChatConductor):
                         "SPEAKER INTERACTION SCHEMA, if provided.",
                         "If based on TERMINATION CONDITION you determine that the chat should end, you should return the "
                         "string TERMINATE instead of a participant name.",
+                        "If there is only one participant either choose them or terminate the chat, "
+                        "based on the termination condition.",
                     ],
                 ),
                 Section(
@@ -156,7 +158,7 @@ class LangChainBasedAIChatConductor(ChatConductor):
 
     def select_next_speaker(self, chat: Chat) -> Optional[ActiveChatParticipant]:
         participants = chat.get_active_participants()
-        if len(participants) <= 1:
+        if len(participants) == 0:
             return None
 
         if self.spinner is not None:
