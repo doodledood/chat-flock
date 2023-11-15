@@ -33,7 +33,8 @@ class CreateTeamCompositionForGoalOutputSchema(BaseModel):
     )
     interaction_schema: str = Field(
         description="A granular and detailed member interaction schema that includes the phases, "
-        "how members should interact with each other to achieve the goal, failure cases, etc."
+        "how members should interact with each other to achieve the goal, failure cases, "
+        "stoppage criteria, success metrics, etc."
     )
 
 

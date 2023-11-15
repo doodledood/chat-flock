@@ -155,7 +155,8 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
                                 "Select individuals with the necessary conversational abilities and tool proficiency.",
                                 "Allocate roles and tasks that correspond to the objective's components.",
                                 "Invent role-based monikers for team members.",
-                                "Include all the fixed team members in the new team.",
+                                "Include all the fixed team members in the new team; take fixed team members into "
+                                "account when allocating roles and tasks.",
                             ],
                         ),
                         Section(
@@ -169,7 +170,9 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
                     list=[
                         "Design a blueprint for team interactions, dialogue flow, and tool application for each "
                         "component of the objective.",
-                        "Incorporate stages, interaction patterns, contingency plans, and success metrics.",
+                        "Incorporate stages, interaction patterns, failure cases, contingency plans, "
+                        "and success metrics.",
+                        "Fixed members must be included in the interaction outline.",
                     ],
                 ),
                 Section(
