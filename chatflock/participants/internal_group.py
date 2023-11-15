@@ -36,10 +36,9 @@ class InternalGroupBasedChatParticipant(ActiveChatParticipant):
 
         super().__init__(name=group_name, **kwargs)
 
-    def initialize(self):
         # Make sure the chat & conductor are initialized, as it may be a dynamic chat with
         # no participants yet.
-        self.inner_chat_conductor.initialize_chat(chat=self.inner_chat)
+        self.inner_chat_conductor.prepare_chat(chat=self.inner_chat)
 
     def respond_to_chat(self, chat: "Chat") -> str:
         if self.clear_inner_chat_before_responding:
@@ -64,7 +63,7 @@ class InternalGroupBasedChatParticipant(ActiveChatParticipant):
             answerer=leader,
         )
 
-        group_response = self.inner_chat_conductor.initiate_chat_with_result(
+        group_response = self.inner_chat_conductor.initiate_dialog(
             chat=self.inner_chat, initial_message=request_for_group
         )
 

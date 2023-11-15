@@ -124,7 +124,7 @@ class LangChainBasedAIChatConductor(ChatConductor):
 
         return str(prompt)
 
-    def initialize_chat(self, chat: "Chat", **kwargs: Any) -> None:
+    def prepare_chat(self, chat: "Chat", **kwargs: Any) -> None:
         # If a composition generator is provided, generate a new composition for the chat before starting.
         if self.composition_generator is not None and not self.composition_initialized:
             composition_suggestion = kwargs.get("composition_suggestion", None)
@@ -154,7 +154,7 @@ class LangChainBasedAIChatConductor(ChatConductor):
 
             self.composition_initialized = True
 
-        super().initialize_chat(chat=chat, **kwargs)
+        super().prepare_chat(chat=chat, **kwargs)
 
     def select_next_speaker(self, chat: Chat) -> Optional[ActiveChatParticipant]:
         participants = chat.get_active_participants()

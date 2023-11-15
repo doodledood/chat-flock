@@ -80,7 +80,7 @@ def chat_messages_to_pydantic(
     )
     conductor = RoundRobinChatConductor()
 
-    _ = conductor.initiate_chat_with_result(chat=parser_chat)
+    _ = conductor.initiate_dialog(chat=parser_chat)
 
     if json_parser.output is None:
         raise MessageCouldNotBeParsedError("An output could not be parsed from the chat messages.")

@@ -56,7 +56,7 @@ def three_way_ai_conductor(model: str = "gpt-4-1106-preview", temperature: float
         termination_condition="When the user finds the food satisfactory.",
     )
 
-    chat_conductor.initiate_chat_with_result(chat=chat)
+    chat_conductor.initiate_dialog(chat=chat)
 
 
 if __name__ == "__main__":

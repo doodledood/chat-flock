@@ -201,7 +201,7 @@ class WebSearch:
             max_total_messages=2,
         )
         chat_conductor = RoundRobinChatConductor()
-        final_answer = chat_conductor.initiate_chat_with_result(
+        final_answer = chat_conductor.initiate_dialog(
             chat=chat,
             initial_message=str(
                 StructuredString(

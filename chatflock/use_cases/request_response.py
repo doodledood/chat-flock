@@ -24,6 +24,6 @@ def get_response(
     )
 
     chat_conductor = RoundRobinChatConductor()
-    answer = chat_conductor.initiate_chat_with_result(chat=chat, initial_message=query, from_participant=user)
+    answer = chat_conductor.initiate_dialog(chat=chat, initial_message=query, from_participant=user)
 
     return answer, chat

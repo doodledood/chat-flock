@@ -54,7 +54,7 @@ def automatic_hierarchical_chat_composition(model: str = "gpt-4-1106-preview", t
     # It's not necessary in practice to manually call `initialize_chat` since initiation is done automatically
     # when calling `initiate_chat_with_result`. However, this is needed to eagerly generate the composition.
     # Default is lazy and will happen when the chat is initiated.
-    chat_conductor.initialize_chat(
+    chat_conductor.prepare_chat(
         chat=chat,
         # Only relevant when passing in a composition generator
         composition_suggestion="DevCompany: Includes a CEO, Product Team, Marketing Team, and a Development "
@@ -64,7 +64,7 @@ def automatic_hierarchical_chat_composition(model: str = "gpt-4-1106-preview", t
     print(f"\nGenerated composition:\n=================\n{chat.active_participants_str}\n=================\n\n")
 
     # You can also pass in a composition suggestion here.
-    result = chat_conductor.initiate_chat_with_result(chat=chat)
+    result = chat_conductor.initiate_dialog(chat=chat)
     print(result)
 
 

@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Sequence, TypeVar
+from typing import Any, Callable, List, Optional, Sequence, TypeVar
 
 import abc
 import dataclasses
@@ -36,9 +36,6 @@ class ChatParticipant(abc.ABC):
     def on_participant_left_chat(self, chat: "Chat", participant: "ChatParticipant") -> None:
         pass
 
-    def initialize(self) -> None:
-        pass
-
     def __str__(self) -> str:
         return self.name
 
@@ -49,7 +46,7 @@ class ChatParticipant(abc.ABC):
 
 class ActiveChatParticipant(ChatParticipant):
     symbol: str
-    messages_hidden: bool
+    messages_hidden: bool = False
 
     def __init__(self, name: str, symbol: str = "👤", messages_hidden: bool = False):
         super().__init__(name=name)
@@ -77,6 +74,9 @@ class ChatMessage(BaseModel):
 
 
 class ChatConductor(abc.ABC):
+    def __init__(self, composition_generator: "ChatCompositionGenerator"):
+        self.composition_generator = composition_generator
+
     @abc.abstractmethod
     def select_next_speaker(self, chat: "Chat") -> Optional[ActiveChatParticipant]:
         raise NotImplementedError()
@@ -90,22 +90,17 @@ class ChatConductor(abc.ABC):
 
         return last_message.content
 
-    def initialize_chat(self, chat: "Chat", **kwargs: Any) -> None:
-        # Make sure all participants are initialized.
-        for active_participant in chat.get_active_participants():
-            active_participant.initialize()
+    def prepare_chat(self, chat: "Chat", **kwargs: Any) -> None:
+        pass
 
-        for non_active_participant in chat.get_non_active_participants():
-            non_active_participant.initialize()
-
-    def initiate_chat_with_result(
+    def initiate_dialog(
         self,
         chat: "Chat",
         initial_message: Optional[str] = None,
         from_participant: Optional[ChatParticipant] = None,
         **kwargs: Any,
     ) -> str:
-        self.initialize_chat(chat=chat, **kwargs)
+        self.prepare_chat(chat=chat, **kwargs)
 
         active_participants = chat.get_active_participants()
         if len(active_participants) <= 1:

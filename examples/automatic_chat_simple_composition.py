@@ -36,11 +36,11 @@ def automatic_simple_chat_composition(model: str = "gpt-4-1106-preview", tempera
 
     # Not necessary in practice since initiation is done automatically when calling `initiate_chat_with_result`.
     # However, this is needed to eagerly generate the composition. Default is lazy.
-    chat_conductor.initialize_chat(chat=chat)
+    chat_conductor.prepare_chat(chat=chat)
 
     print(f"Generated Composition:\n=================\n{chat.active_participants_str}\n=================\n\n")
 
-    result = chat_conductor.initiate_chat_with_result(chat=chat)
+    result = chat_conductor.initiate_dialog(chat=chat)
     print(result)
 
 
