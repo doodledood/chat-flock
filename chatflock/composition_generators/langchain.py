@@ -189,7 +189,7 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
             "they can, each in their complementary own way.",
             "If you add a team, generate a name, and a mission for the team, in the same way.",
             "Always try to add or complete a comprehensive composition of participants that have "
-            "orthogonal and complementary specialities, skills, roles, and missions (whether they are teams or "
+            "orthogonal and complementary specialties, skills, roles, and missions (whether they are teams or "
             "individuals). You may not necessarily have the option to change this composition later, so make sure "
             "you summon the right participants.",
         ]
@@ -219,7 +219,7 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
                         "step-by-step manner by looking at all the inputs.",
                         "Assess if the current participants are sufficient for ideally contributing to the goal.",
                         "If insufficient, summon additional participants (or teams) as needed.",
-                        "If some participants are unnecessary, remove them.",
+                        "If some participants (individuals or teams) are unnecessary, remove them.",
                         "Update the interaction schema and termination condition to accommodate changes in "
                         "participants.",
                     ],
@@ -240,6 +240,11 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
                                         "actual companies of people.",
                                         "This team will contain a group of internal individual (or even sub-teams) "
                                         "participants. Do not worry about the team's composition at this point.",
+                                        "Include a team name, mission, and a composition suggestion for the members of "
+                                        "the team (could be individuals or more teams again). Ensure the suggestion "
+                                        "contains an indication of whether a participant is an individual or a team. "
+                                        'Format like: "Name: ...\nMission: ...\nComposition Suggestion: '
+                                        'NAME (individual), NAME (individual), NAME (Team), NAME (Team)..."',
                                     ],
                                 ),
                                 Section(
@@ -297,7 +302,7 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
                         Section(
                             name="Orthogonality of Participants",
                             list=[
-                                "Always strive to have participants with orthogonal skills, roles, and specialities. "
+                                "Always strive to have participants with orthogonal skills, roles, and specialties. "
                                 "That includes personal missions, as well.",
                                 "Shared skills and missions is a waste of resources. Aim for maximum coverage of "
                                 "skills, roles, specialities and missions.",
