@@ -74,9 +74,6 @@ class ChatMessage(BaseModel):
 
 
 class ChatConductor(abc.ABC):
-    def __init__(self, composition_generator: "ChatCompositionGenerator"):
-        self.composition_generator = composition_generator
-
     @abc.abstractmethod
     def select_next_speaker(self, chat: "Chat") -> Optional[ActiveChatParticipant]:
         raise NotImplementedError()

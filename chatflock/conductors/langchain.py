@@ -27,8 +27,6 @@ class LangChainBasedAIChatConductor(ChatConductor):
         tools: Optional[List[BaseTool]] = None,
         chat_model_args: Optional[Dict[str, Any]] = None,
     ):
-        super().__init__()
-
         self.chat_model = chat_model
         self.chat_model_args = chat_model_args or {}
         self.tools = tools

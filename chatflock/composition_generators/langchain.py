@@ -189,9 +189,9 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
             "they can, each in their complementary own way.",
             "If you add a team, generate a name, and a mission for the team, in the same way.",
             "Always try to add or complete a comprehensive composition of participants that have "
-            "orthogonal and complementary skills, roles, and missions (whether they are teams or individuals).",
-            "You may not necessarily have the option to change this composition later, so make sure you summon "
-            "the right participants.",
+            "orthogonal and complementary specialities, skills, roles, and missions (whether they are teams or "
+            "individuals). You may not necessarily have the option to change this composition later, so make sure "
+            "you summon the right participants.",
         ]
 
         if self.prefer_critics:
@@ -215,12 +215,13 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
                 Section(
                     name="Process",
                     list=[
-                        "Think about the ideal composition of participants that can contribute to the goal in a step-by-step "
-                        "manner by looking at all the inputs.",
+                        "Think about the ideal composition of participants that can contribute to the goal in a "
+                        "step-by-step manner by looking at all the inputs.",
                         "Assess if the current participants are sufficient for ideally contributing to the goal.",
                         "If insufficient, summon additional participants (or teams) as needed.",
                         "If some participants are unnecessary, remove them.",
-                        "Update the interaction schema and termination condition to accommodate changes in participants.",
+                        "Update the interaction schema and termination condition to accommodate changes in "
+                        "participants.",
                     ],
                     list_item_prefix=None,
                 ),
@@ -234,25 +235,27 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
                                 Section(
                                     name="Team-based Participants",
                                     list=[
-                                        "For very difficult tasks, you may need to summon a team (as a participant) instead of an "
-                                        "individual to work together to achieve a sub-goal, similar to actual companies of people.",
-                                        "This team will contain a group of internal individual (or even sub-teams) participants. Do "
-                                        "not worry about the team's composition at this point.",
+                                        "For very difficult tasks, you may need to summon a team (as a participant) "
+                                        "instead of an individual to work together to achieve a sub-goal, similar to "
+                                        "actual companies of people.",
+                                        "This team will contain a group of internal individual (or even sub-teams) "
+                                        "participants. Do not worry about the team's composition at this point.",
                                     ],
                                 ),
                                 Section(
                                     name="Naming Individual Participants",
                                     list=[
                                         "Generate a creative name that fits the role and mission.",
-                                        "You can use play on words, stereotypes, or any other way you want to be original.",
+                                        "You can use play on words, stereotypes, or any other way you want to be "
+                                        "original.",
                                         'For example: "CEO" -> "Maximilian Power", "CTO" -> "Nova Innovatus"',
                                     ],
                                 ),
                                 Section(
                                     name="Naming Team-based Participants",
                                     list=[
-                                        "In contrast to individual participants, you should name teams based only on their mission "
-                                        "and composition. Do not be creative here.",
+                                        "In contrast to individual participants, you should name teams based only on "
+                                        "their mission and composition. Do not be creative here.",
                                         'For example: "Development Team", "Marketing Team"',
                                     ],
                                 ),
@@ -261,13 +264,15 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
                                     list=[
                                         "Only individual participants can be given tools.",
                                         "You must only choose a tool from the AVAILABLE PARTICIPANT TOOLS list.",
-                                        "A tools should be given to a participant only if it can help them fulfill their personal mission better.",
+                                        "A tools should be given to a participant only if it can help them fulfill "
+                                        "their personal mission better.",
                                     ],
                                 ),
                                 Section(
                                     name="Correct Hierarchical Composition",
                                     list=[
-                                        "If you add a team, make sure to add the team as a participant, and not its individual members."
+                                        "If you add a team, make sure to add the team as a participant, and not its "
+                                        "individual members."
                                     ],
                                 ),
                             ],
@@ -275,25 +280,27 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
                         Section(
                             name="Removing Participants",
                             list=[
-                                "Remove participants only if they cannot contribute to the goal or fit into the interaction schema.",
-                                "Ignore past performance. Focus on the participant's potential contribution to the goal and their "
-                                "fit into the interaction schema.",
+                                "Remove participants only if they cannot contribute to the goal or fit into the "
+                                "interaction schema.Ignore past performance. Focus on the participant's potential"
+                                "contribution to the goal and their fit into the interaction schema.",
                             ],
                         ),
                         Section(
                             name="Order of Participants",
                             list=[
-                                "The order of participants is important. It should be the order in which they should be summoned.",
-                                "The first participant will be regarded to as the leader of the group at times, so make sure to "
-                                "choose the right one to put first.",
+                                "The order of participants is important. It should be the order in which they "
+                                "should be summoned.",
+                                "The first participant will be regarded to as the leader of the group at times, "
+                                "so make sure to choose the right one to put first.",
                             ],
                         ),
                         Section(
                             name="Orthogonality of Participants",
                             list=[
-                                "Always strive to have participants with orthogonal skills and roles. That includes personal "
-                                "missions, as well.",
-                                "Shared skills and missions is a waste of resources.",
+                                "Always strive to have participants with orthogonal skills, roles, and specialities. "
+                                "That includes personal missions, as well.",
+                                "Shared skills and missions is a waste of resources. Aim for maximum coverage of "
+                                "skills, roles, specialities and missions.",
                             ],
                         ),
                         Section(
