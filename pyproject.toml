@@ -28,16 +28,14 @@ classifiers = [#! Update me
   "Topic :: Software Development :: Libraries :: Python Modules",
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.7",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
 ]
 
 
 
 [tool.poetry.dependencies]
-python = "^3.8.1"
-importlib_metadata = { version = "^6.8.0", python = "<3.8" }
+python = "^3.9.0"
+importlib_metadata = "^6.8.0"
 requests = "^2.31.0"
 langchain = "^0.0.335"
 python-dotenv = "^1.0.0"
@@ -68,9 +66,13 @@ coverage-badge = "^1.1.0"
 pytest-html = "^4.1.1"
 pytest-cov = "^4.1.0"
 
+[tool.poetry.group.dev.dependencies]
+sphinx = "^7.2.6"
+sphinx-rtd-theme = "^1.3.0"
+
 [tool.black]
 # https://github.com/psf/black
-target-version = ["py38"]
+target-version = ["py39"]
 line-length = 120
 color = true
 
@@ -105,7 +107,7 @@ color_output = true
 
 [tool.mypy]
 # https://mypy.readthedocs.io/en/latest/config_file.html#using-a-pyproject-toml-file
-python_version = 3.8
+python_version = 3.9
 pretty = true
 show_traceback = true
 color_output = true
