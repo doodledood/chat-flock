@@ -1,13 +1,22 @@
 import pathlib
 import sys
 
-from chatflock import get_version
-
 src_directory = pathlib.Path(__file__).parent.parent
 sys.path.insert(0, str(src_directory))
 
 project = "chat-flock"
 copyright = "2023- Aviram Kofman"
+
+
+def get_version() -> str:
+    text = (src_directory / "pyproject.toml").read_text()
+    for line in text.splitlines():
+        if line.startswith("version = "):
+            return line.split("=")[1].strip().strip('"')
+
+    raise ValueError("Could not find version in pyproject.toml")
+
+
 release = version = get_version()
 
 extensions = [
