@@ -4,8 +4,9 @@ import sys
 src_directory = pathlib.Path(__file__).parent.parent
 sys.path.insert(0, str(src_directory))
 
-project = "chat-flock"
-copyright = "2023- Aviram Kofman"
+project = "ChatFlock"
+copyright = "2023, Aviram Kofman"
+author = "Aviram Kofman"
 
 
 def get_version() -> str:
@@ -21,10 +22,15 @@ release = version = get_version()
 
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
     "sphinx.ext.coverage",
     "sphinx.ext.doctest",
     "sphinx.ext.todo",
 ]
-exclude_patterns = ["htmlcov", "assets"]
+
+templates_path = ["_templates"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "tests"]
+
 master_doc = "index"
-html_theme = "classic"
+html_theme = "alabaster"
+html_static_path = ["_static"]

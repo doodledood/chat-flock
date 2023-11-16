@@ -1,9 +1,17 @@
-:tocdepth: 3
+Welcome to ChatFlock's documentation!
+=====================================
 
-*********************************************************************
-:mod:`chatflock` ---  Driving Dynamic Multi-Participant Chat Interactions for AI and Human Discourse
-*********************************************************************
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
 
-.. module:: chatflock
+   modules
 
-Coming soon!
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
