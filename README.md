@@ -54,7 +54,6 @@ At the heart of ChatFlock is the Conductor, a novel entity that determines the s
 - [AI-Directed Multi-Participant Chat (Manual Composition)](examples/three_way_ai_conductor.py)
 - [AI-Directed Multi-Participant Chat (Automated Composition)](examples/automatic_chat_composition.py)
 - [AI-Directed Multi-Participant Hierarchical Chat (Manual Composition)](examples/manual_hierarchical_participant.py)
-- [AI-Directed Multi-Participant Hierarchical Chat (Automated Composition)](examples/automatic_hierarchical_participant.py)
 
 
 #### End-to-End Examples
@@ -69,12 +68,13 @@ At the heart of ChatFlock is the Conductor, a novel entity that determines the s
 - **Extensive LLM Toolkit Support**: Fully compatible with existing LLM ecosystems like LangChain, enhancing their features for a robust chat experience.
 - **Web Research Module**: A sophisticated tool that conducts automated web research, leveraging selenium to analyze top search results.
 - **BSHR (Brainstorm-Search-Hypothesize-Refine) Loop**: An integrated module that employs the automated research tool in a loop using information literacy techniques for superior research outcomes (based on how humans do research). Credit: [David Shapiro](https://github.com/daveshap/BSHR_Loop)
-- **Code Execution Tools**: Facilitate the execution of code snippets within the chat, with support for both local and Docker environments.
+- **Code Execution Tools**: Facilitate the execution of direct code snippets within the chat, with support for both local and Docker environments.
 
 ## 🌟 What's Next?
-- **Asynchronous Chat Support**: Plans to enable non-real-time conversations, allowing for more flexible interaction timelines.
-- **OpenAI Assistant Integration**: Future updates will include compatibility with OpenAI's latest features, expanding the library's AI capabilities.
-- **Enhanced Code Execution**: Upcoming versions will introduce advanced code execution features, including support for writing to files and more comprehensive execution environments.
+- **Asynchronous Chat Support**: enable non-real-time conversations, allowing for more flexible interaction timelines.
+- **Automated AI Hierarchical Composition**: Automatically configure AI participants in a complex company-like hierarchy to achieve specific conversational goals.
+- **OpenAI Assistant Integration**: Compatibility with OpenAI's latest features, expanding the library's AI capabilities.
+- **Enhanced Code Execution**: Advanced code execution features, including support for writing to files and more comprehensive execution environments.
 
 ## 💁 Contributing
 As an open-source project in a rapidly developing field, we are extremely open to contributions, whether it be in the form of a new feature, improved infrastructure, or better documentation.
