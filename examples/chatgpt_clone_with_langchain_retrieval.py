@@ -45,7 +45,7 @@ def chatgpt_clone_with_langchain_retrieval(model: str = "gpt-4-1106-preview", te
     )
 
     chat_conductor = RoundRobinChatConductor()
-    chat_conductor.initiate_chat_with_result(chat=chat)
+    chat_conductor.initiate_dialog(chat=chat)
 
 
 if __name__ == "__main__":

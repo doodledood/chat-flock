@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Sequence, TypeVar
+from typing import Any, Callable, List, Optional, Sequence, TypeVar
 
 import abc
 import dataclasses
@@ -36,9 +36,6 @@ class ChatParticipant(abc.ABC):
     def on_participant_left_chat(self, chat: "Chat", participant: "ChatParticipant") -> None:
         pass
 
-    def initialize(self) -> None:
-        pass
-
     def __str__(self) -> str:
         return self.name
 
@@ -49,7 +46,7 @@ class ChatParticipant(abc.ABC):
 
 class ActiveChatParticipant(ChatParticipant):
     symbol: str
-    messages_hidden: bool
+    messages_hidden: bool = False
 
     def __init__(self, name: str, symbol: str = "👤", messages_hidden: bool = False):
         super().__init__(name=name)
@@ -66,7 +63,7 @@ class ActiveChatParticipant(ChatParticipant):
 
     def detailed_str(self, level: int = 0) -> str:
         prefix = "    " * level
-        return f"{prefix}- {self.name}\n{prefix}  Symbol: {self.symbol}"
+        return f"{prefix}- Name: {self.name}\n{prefix}  Symbol: {self.symbol}"
 
 
 class ChatMessage(BaseModel):
@@ -90,25 +87,20 @@ class ChatConductor(abc.ABC):
 
         return last_message.content
 
-    def initialize_chat(self, chat: "Chat", **kwargs: Any) -> None:
-        # Make sure all participants are initialized.
-        for active_participant in chat.get_active_participants():
-            active_participant.initialize()
+    def prepare_chat(self, chat: "Chat", **kwargs: Any) -> None:
+        pass
 
-        for non_active_participant in chat.get_non_active_participants():
-            non_active_participant.initialize()
-
-    def initiate_chat_with_result(
+    def initiate_dialog(
         self,
         chat: "Chat",
         initial_message: Optional[str] = None,
         from_participant: Optional[ChatParticipant] = None,
         **kwargs: Any,
     ) -> str:
-        self.initialize_chat(chat=chat, **kwargs)
+        self.prepare_chat(chat=chat, **kwargs)
 
         active_participants = chat.get_active_participants()
-        if len(active_participants) <= 1:
+        if len(active_participants) <= 0:
             raise NotEnoughActiveParticipantsInChatError(len(active_participants))
 
         self.start_chat(chat=chat)
@@ -217,7 +209,6 @@ class ChatRenderer(abc.ABC):
 class GeneratedChatComposition:
     participants: Sequence[ChatParticipant]
     participants_interaction_schema: str
-    termination_condition: str
 
 
 class ChatCompositionGenerator(abc.ABC):
@@ -225,9 +216,9 @@ class ChatCompositionGenerator(abc.ABC):
     def generate_composition_for_chat(
         self,
         chat: "Chat",
+        goal: str,
         composition_suggestion: Optional[str] = None,
-        participants_interaction_schema: Optional[str] = None,
-        termination_condition: Optional[str] = None,
+        interaction_schema: Optional[str] = None,
     ) -> GeneratedChatComposition:
         raise NotImplementedError()
 
@@ -235,7 +226,6 @@ class ChatCompositionGenerator(abc.ABC):
 class Chat:
     backing_store: ChatDataBackingStore
     renderer: ChatRenderer
-    goal: str
     name: Optional[str] = None
     max_total_messages: Optional[int] = None
     hide_messages: bool = False
@@ -246,7 +236,6 @@ class Chat:
         renderer: ChatRenderer,
         initial_participants: Optional[Sequence[ChatParticipant]] = None,
         name: Optional[str] = None,
-        goal: str = "This is a regular chatroom, the goal is to just have a conversation.",
         max_total_messages: Optional[int] = None,
         hide_messages: bool = False,
     ):
@@ -255,7 +244,6 @@ class Chat:
 
         self.backing_store = backing_store
         self.renderer = renderer
-        self.goal = goal
         self.name = name
         self.hide_messages = hide_messages
         self.max_total_messages = max_total_messages

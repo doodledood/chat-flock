@@ -66,7 +66,7 @@ def chatgpt_clone_with_additional_tools(
     )
 
     chat_conductor = RoundRobinChatConductor()
-    chat_conductor.initiate_chat_with_result(chat=chat)
+    chat_conductor.initiate_dialog(chat=chat)
 
     page_retriever.close()
 

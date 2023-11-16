@@ -12,30 +12,24 @@ from chatflock.structured_string import Section, StructuredString
 
 
 class LangChainBasedAIChatConductor(ChatConductor):
-    default_termination_condition: str = f"""Terminate the chat on the following conditions:
-    - When the goal of the chat has been achieved
-    - If one of the participants asks you to terminate it or has finished their sentence with "TERMINATE"."""
-
     def __init__(
         self,
         chat_model: BaseChatModel,
+        goal: str = "No explicit goal provided.",
         composition_generator: Optional[ChatCompositionGenerator] = None,
-        participants_interaction_schema: Optional[str] = None,
-        termination_condition: Optional[str] = None,
+        interaction_schema: Optional[str] = None,
         retriever: Optional[BaseRetriever] = None,
         spinner: Optional[Halo] = None,
         tools: Optional[List[BaseTool]] = None,
         chat_model_args: Optional[Dict[str, Any]] = None,
     ):
-        super().__init__()
-
         self.chat_model = chat_model
         self.chat_model_args = chat_model_args or {}
+        self.goal = goal
         self.tools = tools
         self.retriever = retriever
         self.composition_generator = composition_generator
-        self.participants_interaction_schema = participants_interaction_schema
-        self.termination_condition = termination_condition or self.default_termination_condition
+        self.interaction_schema = interaction_schema
         self.spinner = spinner
 
         self.composition_initialized = False
@@ -53,7 +47,7 @@ class LangChainBasedAIChatConductor(ChatConductor):
                 Section(
                     name="Mission",
                     text="Select the next speaker in the conversation based on the previous messages in the "
-                    "conversation and an optional SPEAKER INTERACTION SCHEMA. If it seems to you that the chat "
+                    "conversation and an optional INTERACTION SCHEMA. If it seems to you that the chat "
                     "should end instead of selecting a next speaker, terminate it.",
                 ),
                 Section(name="Rules", list=["You can only select one of the participants in the group chat."]),
@@ -61,16 +55,18 @@ class LangChainBasedAIChatConductor(ChatConductor):
                     name="Process",
                     list=[
                         "Look at the last message in the conversation and determine who should speak next based on the "
-                        "SPEAKER INTERACTION SCHEMA, if provided.",
-                        "If based on TERMINATION CONDITION you determine that the chat should end, you should return the "
-                        "string TERMINATE instead of a participant name.",
+                        "INTERACTION SCHEMA, if provided.",
+                        "If you determine that the chat should end, you should return the "
+                        "string TERMINATE instead of a participant name. For example, when the goal has been achieved, "
+                        ", it is impossible to reach, or if the user asks to terminate the chat.",
                     ],
                 ),
                 Section(
                     name="Input",
                     list=[
                         "Chat goal",
-                        "Currently active participants in the conversation" "Speaker interaction schema",
+                        "Currently active participants in the conversation",
+                        "Speaker interaction schema",
                         "Previous messages from the conversation",
                     ],
                 ),
@@ -97,7 +93,7 @@ class LangChainBasedAIChatConductor(ChatConductor):
 
         return str(system_message)
 
-    def create_next_speaker_first_human_prompt(self, chat: "Chat") -> str:
+    def create_next_speaker_first_human_prompt(self, chat: "Chat", goal: str) -> str:
         messages = chat.get_messages()
         messages_list = [f"- {message.sender_name}: {message.content}" for message in messages]
 
@@ -105,15 +101,14 @@ class LangChainBasedAIChatConductor(ChatConductor):
 
         prompt = StructuredString(
             sections=[
-                Section(name="Chat Goal", text=chat.goal or "No explicit chat goal provided."),
+                Section(name="Goal", text=goal or "No explicit goal provided."),
                 Section(
                     name="Currently Active Participants", list=[f"{str(participant)}" for participant in participants]
                 ),
                 Section(
-                    name="Speaker Interaction Schema",
-                    text=self.participants_interaction_schema or "Not provided. Use your best judgement.",
+                    name="Interaction Schema",
+                    text=self.interaction_schema or "Not provided. Use your best judgement.",
                 ),
-                Section(name="Termination Condition", text=self.termination_condition),
                 Section(
                     name="Chat Messages",
                     text="No messages yet." if len(messages_list) == 0 else None,
@@ -124,15 +119,15 @@ class LangChainBasedAIChatConductor(ChatConductor):
 
         return str(prompt)
 
-    def initialize_chat(self, chat: "Chat", **kwargs: Any) -> None:
+    def prepare_chat(self, chat: "Chat", **kwargs: Any) -> None:
         # If a composition generator is provided, generate a new composition for the chat before starting.
         if self.composition_generator is not None and not self.composition_initialized:
             composition_suggestion = kwargs.get("composition_suggestion", None)
             new_composition = self.composition_generator.generate_composition_for_chat(
                 chat=chat,
+                goal=self.goal,
                 composition_suggestion=composition_suggestion,
-                participants_interaction_schema=self.participants_interaction_schema,
-                termination_condition=self.termination_condition,
+                interaction_schema=self.interaction_schema,
             )
 
             # Sync participants with the new composition.
@@ -149,16 +144,15 @@ class LangChainBasedAIChatConductor(ChatConductor):
                 if participant.name not in new_participants_names:
                     chat.remove_participant(participant)
 
-            self.participants_interaction_schema = new_composition.participants_interaction_schema
-            self.termination_condition = new_composition.termination_condition
+            self.interaction_schema = new_composition.participants_interaction_schema
 
             self.composition_initialized = True
 
-        super().initialize_chat(chat=chat, **kwargs)
+        super().prepare_chat(chat=chat, **kwargs)
 
     def select_next_speaker(self, chat: Chat) -> Optional[ActiveChatParticipant]:
         participants = chat.get_active_participants()
-        if len(participants) <= 1:
+        if len(participants) == 0:
             return None
 
         if self.spinner is not None:
@@ -170,7 +164,7 @@ class LangChainBasedAIChatConductor(ChatConductor):
         # Ask the AI to select the next speaker.
         messages = [
             SystemMessage(content=self.create_next_speaker_system_prompt(chat=chat)),
-            HumanMessage(content=self.create_next_speaker_first_human_prompt(chat=chat)),
+            HumanMessage(content=self.create_next_speaker_first_human_prompt(chat=chat, goal=self.goal)),
         ]
 
         result = self.execute_messages(messages=messages)

@@ -39,6 +39,9 @@ At the heart of ChatFlock is the Conductor, a novel entity that determines the s
 
 ### 📝 Usage Examples 
 
+#### 1-Participant Chat
+- [Assistant Self-Dialogue](examples/assistant_self_dialogue.py)
+
 #### 2-Participant Chat
 
 - [Basic ChatGPT Clone](examples/chatgpt_clone.py)
@@ -46,15 +49,12 @@ At the heart of ChatFlock is the Conductor, a novel entity that determines the s
 - [Basic ChatGPT Clone with LangChain Memory](examples/chatgpt_clone_with_langchain_memory.py)
 - [Basic ChatGPT Clone with LangChain-Based Retrieval](examples/chatgpt_clone_with_langchain_retrieval.py)
 
-#### Multi-Participant Chat (Manual Setup)
+#### AI-Directed Multi-Participant Chat
 
-- [3-Way Chat with an AI-based Conductor](examples/three_way_ai_conductor.py)
-- [Multi-Participant Chat with a Group-Based Participant (Manual)](examples/manual_internal_group_participant.py)
+- [AI-Directed Multi-Participant Chat (Manual Composition)](examples/three_way_ai_conductor.py)
+- [AI-Directed Multi-Participant Chat (Automated Composition)](examples/automatic_chat_composition.py)
+- [AI-Directed Multi-Participant Hierarchical Chat (Manual Composition)](examples/manual_hierarchical_participant.py)
 
-#### Multi-Participant Chat (Automatically Composed)
-- [Multi-Participant Chat with a Composition Generator with a 1-level Composition](examples/automatic_chat_simple_composition.py)
-- [Multi-Participant Chat with a Composition Generator with a 2-Level Composition](examples/automatic_chat_simple_composition.py)
-- [Multi-Participant Chat with a Composition Generator with a deep (3+ level) Hierarchical Composition](examples/automatic_hierarchical_chat_composition.py)
 
 #### End-to-End Examples
 - [BSHR (Brainstorm-Search-Hypothesize-Refine) Loop](examples/bshr_loop.py) - Based on [David Shapiro's](https://github.com/daveshap/BSHR_Loop) idea.
@@ -64,17 +64,17 @@ At the heart of ChatFlock is the Conductor, a novel entity that determines the s
 - **Multi-Participant LLM-Based Chats**: Enable rich, collaborative conversations with AI and human participants.
 - **Conductor Orchestration**: A unique system that manages turn-taking and dialogue flow, ensuring smooth chat progression.
 - **Composition Generators**: Smart modules that configure AI participants to achieve specific conversational goals.
-- **Group-Based Participants**: Implement sub-chats that handle complex queries internally before delivering concise responses.
-- **Hierarchical Structure**: Create a scalable, organizational-like chat structure for complex task delegation and management.
+- **Group-Based Participants (Hierarchical Chats)**: Implement sub-chats that handle complex queries internally before delivering concise responses. Enables hierarchical chat structures which can mimic human-like organizational communication.
 - **Extensive LLM Toolkit Support**: Fully compatible with existing LLM ecosystems like LangChain, enhancing their features for a robust chat experience.
 - **Web Research Module**: A sophisticated tool that conducts automated web research, leveraging selenium to analyze top search results.
 - **BSHR (Brainstorm-Search-Hypothesize-Refine) Loop**: An integrated module that employs the automated research tool in a loop using information literacy techniques for superior research outcomes (based on how humans do research). Credit: [David Shapiro](https://github.com/daveshap/BSHR_Loop)
-- **Code Execution Tools**: Facilitate the execution of code snippets within the chat, with support for both local and Docker environments.
+- **Code Execution Tools**: Facilitate the execution of direct code snippets within the chat, with support for both local and Docker environments.
 
 ## 🌟 What's Next?
-- **Asynchronous Chat Support**: Plans to enable non-real-time conversations, allowing for more flexible interaction timelines.
-- **OpenAI Assistant Integration**: Future updates will include compatibility with OpenAI's latest features, expanding the library's AI capabilities.
-- **Enhanced Code Execution**: Upcoming versions will introduce advanced code execution features, including support for writing to files and more comprehensive execution environments.
+- **Asynchronous Chat Support**: enable non-real-time conversations, allowing for more flexible interaction timelines.
+- **Automated AI Hierarchical Composition**: Automatically configure AI participants in a complex company-like hierarchy to achieve specific conversational goals.
+- **OpenAI Assistant Integration**: Compatibility with OpenAI's latest features, expanding the library's AI capabilities.
+- **Enhanced Code Execution**: Advanced code execution features, including support for writing to files and more comprehensive execution environments.
 
 ## 💁 Contributing
 As an open-source project in a rapidly developing field, we are extremely open to contributions, whether it be in the form of a new feature, improved infrastructure, or better documentation.

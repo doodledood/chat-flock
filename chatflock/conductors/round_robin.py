@@ -7,7 +7,7 @@ from chatflock.errors import ChatParticipantNotJoinedToChatError
 class RoundRobinChatConductor(ChatConductor):
     def select_next_speaker(self, chat: Chat) -> Optional[ActiveChatParticipant]:
         active_participants = chat.get_active_participants()
-        if len(active_participants) <= 1:
+        if len(active_participants) <= 0:
             return None
 
         messages = chat.get_messages()

@@ -7,7 +7,7 @@ from chatflock.structured_string import Section, StructuredString
 from chatflock.use_cases.request_response import get_response
 
 
-class InternalGroupBasedChatParticipant(ActiveChatParticipant):
+class GroupBasedChatParticipant(ActiveChatParticipant):
     inner_chat_conductor: ChatConductor
     inner_chat: Chat
     mission: str
@@ -32,14 +32,12 @@ class InternalGroupBasedChatParticipant(ActiveChatParticipant):
 
         # Make sure the inner chat is aligned
         self.inner_chat.name = group_name
-        self.inner_chat.goal = self.mission
 
         super().__init__(name=group_name, **kwargs)
 
-    def initialize(self):
         # Make sure the chat & conductor are initialized, as it may be a dynamic chat with
         # no participants yet.
-        self.inner_chat_conductor.initialize_chat(chat=self.inner_chat)
+        self.inner_chat_conductor.prepare_chat(chat=self.inner_chat)
 
     def respond_to_chat(self, chat: "Chat") -> str:
         if self.clear_inner_chat_before_responding:
@@ -48,14 +46,13 @@ class InternalGroupBasedChatParticipant(ActiveChatParticipant):
         prev_spinner_text = None
         if self.spinner is not None:
             prev_spinner_text = self.spinner.text
-            self.spinner.stop_and_persist(symbol="👥", text=f"{self.name}'s group started a discussion.")
-            self.spinner.start(text=f"{self.name}'s group is discussing...")
+            self.spinner.stop_and_persist(symbol="👥", text=f"{self.name} started a discussion.")
+            self.spinner.start(text=f"{self.name} is discussing...")
 
         messages = chat.get_messages()
         conversation_str = "\n".join([f"- {message.sender_name}: {message.content}" for message in messages])
 
         leader = self.inner_chat.get_active_participants()[0]
-
         request_for_group, _ = get_response(
             query="Please translate the request for yourself in the external conversation into a collaboration "
             "request for your internal group. This is the external conversation:"
@@ -63,21 +60,18 @@ class InternalGroupBasedChatParticipant(ActiveChatParticipant):
             "decide on, and how to respond back based on this. ",
             answerer=leader,
         )
-
-        group_response = self.inner_chat_conductor.initiate_chat_with_result(
+        group_response = self.inner_chat_conductor.initiate_dialog(
             chat=self.inner_chat, initial_message=request_for_group
         )
 
         if self.spinner is not None:
-            self.spinner.succeed(text=f"{self.name}'s group discussion was concluded.")
+            self.spinner.succeed(text=f"{self.name} concluded their discussion.")
             if prev_spinner_text is not None:
                 self.spinner.start(text=prev_spinner_text)
-
         messages = self.inner_chat.get_messages()
         group_response_conversation_str = "\n".join(
             [f"- {message.sender_name}: {message.content}" for message in messages]
         )
-
         leader_response_back, _ = get_response(
             query=str(
                 StructuredString(
@@ -87,11 +81,11 @@ class InternalGroupBasedChatParticipant(ActiveChatParticipant):
                         Section(
                             name="Task",
                             text="You are a part of the EXTERNAL CONVERSATION and need to respond back. "
-                            "You and your group have collaborated on a response back for the EXTERNAL CONVERSATION. "
-                            "Please transform the INTERNAL GROUP CONVERSATION into a proper,"
-                            "in-context response back (in your name) for the EXTERNAL CONVERSATION; it should be "
-                            "mainly based on the conclusion of the internal conversation. Your response"
-                            "will be sent to the EXTERNAL CONVERSATION verbatim.",
+                            "You and your group have collaborated on a response back for the "
+                            "EXTERNAL CONVERSATION. Please transform the INTERNAL GROUP CONVERSATION into "
+                            "a proper, in-context response back (in your name) for the EXTERNAL CONVERSATION; "
+                            "it should be mainly based on the conclusion of the internal conversation. "
+                            "Your response will be sent to the EXTERNAL CONVERSATION verbatim.",
                         ),
                     ]
                 )
@@ -106,16 +100,15 @@ class InternalGroupBasedChatParticipant(ActiveChatParticipant):
 
         if len(active_participants) > 0:
             names = [str(p) for p in active_participants]
-
             return f'{self.name} (Includes: {", ".join(names)})'
 
         return self.name
 
     def detailed_str(self, level: int = 0) -> str:
         prefix = "    " * level
-
         participants = self.inner_chat.get_active_participants()
         members_str = "\n\n".join([p.detailed_str(level=level + 1) for p in participants])
+
         return (
             f'{prefix}- Name: {self.name}\n{prefix}  Symbol: {self.symbol}\n{prefix}  Mission: "{self.mission}"'
             f"\n{members_str}"

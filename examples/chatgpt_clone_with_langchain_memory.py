@@ -31,7 +31,7 @@ def chatgpt_clone_with_langchain_memory(model: str = "gpt-4-1106-preview", tempe
     chat = Chat(backing_store=backing_store, renderer=TerminalChatRenderer(), initial_participants=participants)
 
     chat_conductor = RoundRobinChatConductor()
-    chat_conductor.initiate_chat_with_result(chat=chat)
+    chat_conductor.initiate_dialog(chat=chat)
 
 
 if __name__ == "__main__":

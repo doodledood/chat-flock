@@ -24,7 +24,7 @@ def chatgpt_clone(model: str = "gpt-4-1106-preview", temperature: float = 0.0) -
     )
 
     chat_conductor = RoundRobinChatConductor()
-    chat_conductor.initiate_chat_with_result(chat=chat)
+    chat_conductor.initiate_dialog(chat=chat)
 
 
 if __name__ == "__main__":

@@ -165,11 +165,11 @@ def generate_queries(
         if spinner is not None:
             spinner.stop()
 
-        _ = chat_conductor.initiate_chat_with_result(
+        _ = chat_conductor.initiate_dialog(
             chat=chat, initial_message=f"What is your information need or query?", from_participant=query_generator
         )
     else:
-        _ = chat_conductor.initiate_chat_with_result(
+        _ = chat_conductor.initiate_dialog(
             chat=chat,
             initial_message=str(
                 StructuredString(

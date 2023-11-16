@@ -101,7 +101,6 @@ class LangChainBasedAIChatParticipant(ActiveChatParticipant):
                         name="Chat",
                         sub_sections=[
                             Section(name="Name", text=chat.name or "No name provided. Just a general chat."),
-                            Section(name="Goal", text=chat.goal or "No explicit chat goal provided."),
                             Section(
                                 name="Participants",
                                 text="\n".join(
@@ -118,6 +117,16 @@ class LangChainBasedAIChatParticipant(ActiveChatParticipant):
                                     "prioritize it.",
                                     "If a chat goal is provided, you should still follow your personal mission but "
                                     "in a way that helps the group achieve the chat goal.",
+                                    "If you are the only participant in the chat, you should act as if the chat is now "
+                                    "a scratch pad for you to write down your thoughts, ideas, and work on your "
+                                    "mission by yourself. "
+                                    "In the messages do not refer to another entity, but rather to yourself "
+                                    "(I instead of You); the messages should read and sound like "
+                                    "your internal thoughts and should be succinct, unless they are concrete work "
+                                    "(for example, implementing something, calculating things, etc.). "
+                                    "You have all the time in the world to build your thoughts, ideas, and do the "
+                                    "work needed. The chat is now your place to think and iterate on your mission and "
+                                    " achieve it.",
                                 ],
                             ),
                             Section(
@@ -142,6 +151,8 @@ class LangChainBasedAIChatParticipant(ActiveChatParticipant):
                                     "Some messages could have been sent by participants who are no longer a part of this "
                                     "conversation. Use their contents for context only; do not talk to them.",
                                     "In your response only include the message without the prefix.",
+                                    "If you are the only participant in the chat, the previous chat messages are your "
+                                    " memories or internal thoughts instead.",
                                 ],
                             ),
                         ],
@@ -152,9 +163,11 @@ class LangChainBasedAIChatParticipant(ActiveChatParticipant):
 
         return str(system_message)
 
-    def chat_messages_to_chat_model_messages(self, chat_messages: Sequence[ChatMessage]) -> List[BaseMessage]:
+    def chat_messages_to_chat_model_messages(
+        self, chat_messages: Sequence[ChatMessage], active_participants: Sequence[ActiveChatParticipant]
+    ) -> List[BaseMessage]:
         messages: List[BaseMessage] = []
-        for message in chat_messages:
+        for i, message in enumerate(chat_messages):
             if self.include_timestamp_in_messages:
                 pretty_datetime = message.timestamp.strftime("%m-%d-%Y %H:%M:%S")
                 content = f"[{pretty_datetime}] "
@@ -167,7 +180,10 @@ class LangChainBasedAIChatParticipant(ActiveChatParticipant):
                 content += message.content
 
             if message.sender_name == self.name:
-                messages.append(AIMessage(content=content))
+                if len(active_participants) > 1 or i == len(active_participants) - 1:
+                    messages.append(AIMessage(content=content))
+                else:
+                    messages.append(HumanMessage(content=content))
             else:
                 messages.append(HumanMessage(content=content))
 
@@ -189,7 +205,8 @@ class LangChainBasedAIChatParticipant(ActiveChatParticipant):
 
         system_message = self.create_system_message(chat=chat, relevant_docs=relevant_docs)
 
-        all_messages = self.chat_messages_to_chat_model_messages(chat_messages)
+        active_participants = chat.get_active_participants()
+        all_messages = self.chat_messages_to_chat_model_messages(chat_messages, active_participants)
         all_messages = [SystemMessage(content=system_message), *all_messages]
 
         message_content = self.execute_messages(messages=all_messages)

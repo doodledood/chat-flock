@@ -45,18 +45,17 @@ def three_way_ai_conductor(model: str = "gpt-4-1106-preview", temperature: float
     chat_conductor = LangChainBasedAIChatConductor(
         chat_model=chat_model,
         spinner=spinner,
+        goal="Serve the user as best as possible.",
         # This tells the conductor how to select the next speaker
-        participants_interaction_schema="The User is a customer at a Cafe called 'Coffee Time'. "
+        interaction_schema="The User is a customer at a Cafe called 'Coffee Time'. "
         "The bartender should go first and greet the customer. "
         "When the user asks for food and orders something, the bartender should ask the cook to cook the food. "
         "There might be some conversation between the cook and bartender. "
         "The cook should then give the food to the bartender and the bartender should give the food to the user. "
         "The user should then eat the food and give feedback to the bartender. The cook should not talk to the user.",
-        # This tells the conductor when to stop the chat
-        termination_condition="When the user finds the food satisfactory.",
     )
 
-    chat_conductor.initiate_chat_with_result(chat=chat)
+    chat_conductor.initiate_dialog(chat=chat)
 
 
 if __name__ == "__main__":
