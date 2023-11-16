@@ -19,7 +19,7 @@ Default name is `IMAGE := chat-flock`.
 Default version is `VERSION := latest`.
 
 ```bash
-make docker-build IMAGE=some_name VERSION=0.1.0
+make docker-build IMAGE=chat-flock VERSION=latest
 ```
 
 ## Usage

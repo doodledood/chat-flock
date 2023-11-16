@@ -274,6 +274,7 @@ def generate_hypothesis(
             )
         ),
         answerer=hypothesis_generator,
+        renderer=TerminalChatRenderer(),
     )
     output = chat_messages_to_pydantic(
         chat_messages=chat.get_messages(), chat_model=chat_model, output_schema=HypothesisGenerationResult
@@ -352,16 +353,7 @@ def brainstorm_search_hypothesize_refine(
     if state_file is not None and spinner is not None:
         spinner.start("Loading previous state...")
 
-    loaded_state = load_state(state_file)
-    if loaded_state is None:
-        initial_state = BHSRState() if initial_state is None else initial_state
-
-        if spinner is not None:
-            spinner.stop()
-    else:
-        initial_state = loaded_state
-        if spinner is not None:
-            spinner.succeed("Loaded previous state.")
+    initial_state = BHSRState() if initial_state is None else initial_state
 
     process = SequentialProcess(
         steps=[
@@ -420,6 +412,22 @@ def run_brainstorm_search_hypothesize_refine_loop(
     confirm_satisficed: bool = False,
     spinner: Optional[Halo] = None,
 ) -> str:
+    loaded_state = load_state(state_file)
+    if loaded_state is None:
+        initial_state = BHSRState() if initial_state is None else initial_state
+
+        if spinner is not None:
+            spinner.stop()
+    else:
+        initial_state = loaded_state
+        if spinner is not None:
+            spinner.succeed("Loaded previous state.")
+
+        if initial_state.is_satisficed:
+            spinner.warn("The information need has already been satisficed")
+
+            return initial_state.current_hypothesis or ""
+
     while True:
         state = brainstorm_search_hypothesize_refine(
             initial_state=initial_state,
@@ -435,7 +443,7 @@ def run_brainstorm_search_hypothesize_refine_loop(
                 break
 
             has_feedback = questionary.confirm(
-                "The information need seems to have have been satisficed. Do you have any feedback?"
+                "The information need seems to have been satisficed. Do you have any feedback?"
             ).ask()
 
             if not has_feedback:
@@ -476,7 +484,7 @@ class BrainstormSearchHypothesizeRefineTool(BaseTool, Generic[TArgSchema]):
     def _run(self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None, **kwargs: Any) -> Any:
         hypothesis = run_brainstorm_search_hypothesize_refine_loop(
             initial_state=BHSRState(information_need=query),
-            confirm_satisficed=True,
+            confirm_satisficed=False,
             web_search=self.web_search,
             chat_model=self.chat_model,
             n_search_results=self.n_results,

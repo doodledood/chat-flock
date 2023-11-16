@@ -41,7 +41,7 @@ class SeleniumPageRetriever(PageRetriever):
         main_page_min_wait: int = 2,
         driver_implicit_wait: int = 1,
         driver_page_load_timeout: Optional[int] = None,
-        include_iframe_html: bool = True,
+        include_iframe_html: bool = False,
         iframe_timeout: int = 10,
         user_agent: Optional[str] = None,
     ):
