@@ -37,7 +37,7 @@ class Section:
 class StructuredString:
     sections: List[Section]
 
-    def __getitem__(self, item) -> Section:
+    def __getitem__(self, item: str) -> Section:
         if not isinstance(item, str):
             raise TypeError(f"Item must be of type str, not {type(item)}.")
 
@@ -47,7 +47,7 @@ class StructuredString:
 
         return relevant_sections[0]
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key: str, value: Section) -> None:
         if not isinstance(key, str):
             raise TypeError(f"Key must be of type str, not {type(key)}.")
 
@@ -56,7 +56,10 @@ class StructuredString:
 
         try:
             section = self[key]
-            section.text = value
+
+            # Remove old section and replace with new one, in the same place
+            self.sections.insert(self.sections.index(section), value)
+            self.sections.remove(section)
         except KeyError:
             self.sections.append(value)
 
