@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "chat-flock"
-version = "0.1.1"
+version = "0.1.2"
 description = "Driving Dynamic Multi-Participant Chat Interactions for AI and Human Discourse"
 readme = "README.md"
 authors = ["chat-flock <hello@chat-flock.com>"]
