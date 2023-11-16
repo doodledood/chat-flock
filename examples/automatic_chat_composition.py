@@ -15,7 +15,7 @@ from chatflock.renderers import TerminalChatRenderer
 from examples.common import create_chat_model, get_max_context_size
 
 
-def automatic_hierarchical_chat_composition(model: str = "gpt-4-1106-preview", temperature: float = 0.0) -> None:
+def automatic_chat_composition(model: str = "gpt-4-1106-preview", temperature: float = 0.0) -> None:
     chat_model = create_chat_model(model=model, temperature=temperature)
 
     def create_default_backing_store() -> ChatDataBackingStore:
@@ -48,13 +48,7 @@ def automatic_hierarchical_chat_composition(model: str = "gpt-4-1106-preview", t
     # It's not necessary in practice to manually call `initialize_chat` since initiation is done automatically
     # when calling `initiate_dialogue`. However, this is needed to eagerly generate the composition.
     # Default is lazy and will happen when the chat is initiated.
-    chat_conductor.prepare_chat(
-        chat=chat,
-        # Only relevant when passing in a composition generator
-        # composition_suggestion="DevCompany: Includes a CEO, Product Team, Marketing Team, and a Development "
-        # "Department. The Development Department includes a Director, QA Team and Development "
-        # "Team.",
-    )
+    chat_conductor.prepare_chat(chat=chat)
     print(f"\nGenerated composition:\n=================\n{chat.active_participants_str}\n=================\n\n")
 
     # You can also pass in a composition suggestion here.
@@ -65,4 +59,4 @@ def automatic_hierarchical_chat_composition(model: str = "gpt-4-1106-preview", t
 if __name__ == "__main__":
     load_dotenv()
 
-    typer.run(automatic_hierarchical_chat_composition)
+    typer.run(automatic_chat_composition)

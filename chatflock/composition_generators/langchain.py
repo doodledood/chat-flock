@@ -156,7 +156,11 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
                                 "Allocate roles and tasks that correspond to the objective's components.",
                                 "Invent role-based monikers for team members.",
                                 "Include all the fixed team members in the new team; take fixed team members into "
-                                "account when allocating roles and tasks.",
+                                "account when allocating roles and tasks. For example: If a User is in the fixed team, "
+                                "and the goal is about helping the user out somehow, make sure the User is a part of "
+                                "the new team.",
+                                "Ambiguity of roles should be avoided. For example: If a User is in the fixed team, "
+                                "do not assign a new member the role of a User or Client.",
                             ],
                         ),
                         Section(
@@ -166,13 +170,21 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
                     ],
                 ),
                 Section(
-                    name="Interaction Outline",
+                    name="Team Interaction Schema",
                     list=[
                         "Design a blueprint for team interactions, dialogue flow, and tool application for each "
                         "component of the objective.",
                         "Incorporate stages, interaction patterns, failure cases, contingency plans, "
                         "and success metrics.",
-                        "Fixed members must be included in the interaction outline.",
+                        "Fixed members must be included in the interaction outline. For example: If a User is in the "
+                        "fixed team, and the goal is about helping the user out somehow, make sure the User is an "
+                        "integral part of the interaction schema.",
+                        "The interaction schema should be granular and detailed, including the phases, how members "
+                        "should interact with each other to achieve the goal including: failure cases, "
+                        "stoppage criteria, success metrics, interaction patterns and details on team member "
+                        "interactions including exactly who should talk to who, when, tool usage, etc.",
+                        "Generally, everything that a manager of the team should know about to direct the team toward "
+                        "goal completion.",
                     ],
                 ),
                 Section(
@@ -202,14 +214,13 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
                         ),
                         Section(
                             name="Team Roster",
-                            text="Enumerate team members with identifiers, roles, and tasks. "
+                            text="Enumerate team members with identifiers, roles, missions, and tools. "
                             "Format: - emojii (role): mission (tools)",
                         ),
                         Section(
-                            name="Interaction Outline",
-                            text="Offer a systematic outline with phases, detailing team interactions, discussion "
-                            "points, tool usage, steps for each task, and criteria for concluding efforts, "
-                            "including objective fulfillment and user-directed stoppage.",
+                            name="Team Interaction Schema",
+                            text="Present a detailed, structured schema for team interactions based on "
+                            "the TEAM INTERACTION SCHEMA instructions.",
                         ),
                     ],
                 ),

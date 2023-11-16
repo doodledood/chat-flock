@@ -53,6 +53,9 @@ At the heart of ChatFlock is the Conductor, a novel entity that determines the s
 
 - [AI-Directed Multi-Participant Chat (Manual Composition)](examples/three_way_ai_conductor.py)
 - [AI-Directed Multi-Participant Chat (Automated Composition)](examples/automatic_chat_composition.py)
+- [AI-Directed Multi-Participant Hierarchical Chat (Manual Composition)](examples/manual_hierarchical_participant.py)
+- [AI-Directed Multi-Participant Hierarchical Chat (Automated Composition)](examples/automatic_hierarchical_participant.py)
+
 
 #### End-to-End Examples
 - [BSHR (Brainstorm-Search-Hypothesize-Refine) Loop](examples/bshr_loop.py) - Based on [David Shapiro's](https://github.com/daveshap/BSHR_Loop) idea.
@@ -62,8 +65,7 @@ At the heart of ChatFlock is the Conductor, a novel entity that determines the s
 - **Multi-Participant LLM-Based Chats**: Enable rich, collaborative conversations with AI and human participants.
 - **Conductor Orchestration**: A unique system that manages turn-taking and dialogue flow, ensuring smooth chat progression.
 - **Composition Generators**: Smart modules that configure AI participants to achieve specific conversational goals.
-- **Group-Based Participants**: Implement sub-chats that handle complex queries internally before delivering concise responses.
-- **Hierarchical Structure**: Create a scalable, organizational-like chat structure for complex task delegation and management.
+- **Group-Based Participants (Hierarchical Chats)**: Implement sub-chats that handle complex queries internally before delivering concise responses. Enables hierarchical chat structures which can mimic human-like organizational communication.
 - **Extensive LLM Toolkit Support**: Fully compatible with existing LLM ecosystems like LangChain, enhancing their features for a robust chat experience.
 - **Web Research Module**: A sophisticated tool that conducts automated web research, leveraging selenium to analyze top search results.
 - **BSHR (Brainstorm-Search-Hypothesize-Refine) Loop**: An integrated module that employs the automated research tool in a loop using information literacy techniques for superior research outcomes (based on how humans do research). Credit: [David Shapiro](https://github.com/daveshap/BSHR_Loop)

@@ -63,7 +63,7 @@ class ActiveChatParticipant(ChatParticipant):
 
     def detailed_str(self, level: int = 0) -> str:
         prefix = "    " * level
-        return f"{prefix}- {self.name}\n{prefix}  Symbol: {self.symbol}"
+        return f"{prefix}- Name: {self.name}\n{prefix}  Symbol: {self.symbol}"
 
 
 class ChatMessage(BaseModel):
