@@ -34,7 +34,8 @@ def assistant_self_dialog(model: str = "gpt-4-1106-preview", temperature: float 
     chat_conductor.initiate_dialog(
         chat=chat,
         initial_message="I want to write and complete my short 2-page long novel about space turtles now. "
-        "Space turtles are AWESOME. When I am done with it I should respond with TERMINATE",
+        'Space turtles are AWESOME. When I am done with it I should respond with the word "TERMINATE" no quotes with '
+        "nothing else after it",
     )
 
 
