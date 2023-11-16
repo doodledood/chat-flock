@@ -172,7 +172,7 @@ class LangChainBasedAIChatCompositionGenerator(ChatCompositionGenerator):
                 Section(
                     name="Team Interaction Schema",
                     list=[
-                        "Design a blueprint for team interactions, dialogue flow, and tool application for each "
+                        "Design a blueprint for team interactions, dialog flow, and tool application for each "
                         "component of the objective.",
                         "Incorporate stages, interaction patterns, failure cases, contingency plans, "
                         "and success metrics.",

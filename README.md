@@ -40,7 +40,7 @@ At the heart of ChatFlock is the Conductor, a novel entity that determines the s
 ### 📝 Usage Examples 
 
 #### 1-Participant Chat
-- [Assistant Self-Dialogue](examples/assistant_self_dialogue.py)
+- [Assistant Self-Dialogue](examples/assistant_self_dialog.py)
 
 #### 2-Participant Chat
 

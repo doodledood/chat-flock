@@ -46,7 +46,7 @@ def automatic_chat_composition(model: str = "gpt-4-1106-preview", temperature: f
     chat = Chat(backing_store=create_default_backing_store(), renderer=TerminalChatRenderer())
 
     # It's not necessary in practice to manually call `initialize_chat` since initiation is done automatically
-    # when calling `initiate_dialogue`. However, this is needed to eagerly generate the composition.
+    # when calling `initiate_dialog`. However, this is needed to eagerly generate the composition.
     # Default is lazy and will happen when the chat is initiated.
     chat_conductor.prepare_chat(chat=chat)
     print(f"\nGenerated composition:\n=================\n{chat.active_participants_str}\n=================\n\n")

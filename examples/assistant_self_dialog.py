@@ -10,7 +10,7 @@ from chatflock.renderers.terminal import TerminalChatRenderer
 from examples.common import create_chat_model
 
 
-def assistant_self_dialogue(model: str = "gpt-4-1106-preview", temperature: float = 0.0) -> None:
+def assistant_self_dialog(model: str = "gpt-4-1106-preview", temperature: float = 0.0) -> None:
     chat_model = create_chat_model(model=model, temperature=temperature)
 
     spinner = Halo(spinner="dots")
@@ -41,4 +41,4 @@ def assistant_self_dialogue(model: str = "gpt-4-1106-preview", temperature: floa
 if __name__ == "__main__":
     load_dotenv()
 
-    typer.run(assistant_self_dialogue)
+    typer.run(assistant_self_dialog)
