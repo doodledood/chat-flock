@@ -29,6 +29,8 @@ or install with `Poetry`
 poetry add chat-flock
 ```
 
+<!-- start main-docs -->
+
 ## 🤔 What is this?
 
 ChatFlock is a Python library that revolutionizes the way multi-participant chats are conducted by integrating Large Language Models (LLMs) at its core. Born from first principles design, it not only simplifies orchestrating complex chat scenarios but also introduces an innovative structure that mirrors organizational communication. 
@@ -69,6 +71,8 @@ At the heart of ChatFlock is the Conductor, a novel entity that determines the s
 - **Web Research Module**: A sophisticated tool that conducts automated web research, leveraging selenium to analyze top search results.
 - **BSHR (Brainstorm-Search-Hypothesize-Refine) Loop**: An integrated module that employs the automated research tool in a loop using information literacy techniques for superior research outcomes (based on how humans do research). Credit: [David Shapiro](https://github.com/daveshap/BSHR_Loop)
 - **Code Execution Tools**: Facilitate the execution of direct code snippets within the chat, with support for both local and Docker environments.
+
+<!-- end main-docs -->
 
 ## 🌟 What's Next?
 - **Asynchronous Chat Support**: enable non-real-time conversations, allowing for more flexible interaction timelines.

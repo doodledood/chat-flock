@@ -114,6 +114,8 @@ cleanup: pycache-remove dsstore-remove mypycache-remove ipynbcheckpoints-remove 
 
 .PHONY: docs
 docs:
+	@echo "Cleaning old build..."
+	rm -rf docs/_build/html
 	@echo "Generating Sphinx documentation..."
 	poetry run sphinx-apidoc -o docs/ chatflock
 	poetry run sphinx-build -b html docs/ docs/_build/html
