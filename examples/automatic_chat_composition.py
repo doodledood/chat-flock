@@ -51,7 +51,6 @@ def automatic_chat_composition(model: str = "gpt-4-1106-preview", temperature: f
     chat_conductor.prepare_chat(chat=chat)
     print(f"\nGenerated composition:\n=================\n{chat.active_participants_str}\n=================\n\n")
 
-    # You can also pass in a composition suggestion here.
     result = chat_conductor.initiate_dialog(chat=chat)
     print(result)
 
