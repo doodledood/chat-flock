@@ -31,7 +31,7 @@ def bshr_loop(
         model=model_for_page_analysis, temperature=temperature_for_page_analysis
     )
 
-    max_context_size = get_max_context_size(chat_model_for_analysis) or 12_000
+    max_context_size = min(get_max_context_size(chat_model_for_analysis) or 12_000, 12_000)
 
     page_retriever = SeleniumPageRetriever()
     web_search = WebSearch(

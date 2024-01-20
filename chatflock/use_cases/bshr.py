@@ -61,7 +61,9 @@ def load_state(state_file: Optional[str]) -> Optional[BHSRState]:
 
 
 class QueryGenerationResult(BaseModel):
-    information_need: str = Field(description="Information need as requested by the user.")
+    information_need: str = Field(
+        description="Information need as requested by the user. Updated if needed based on feedback provided. Always keep the intent of the information need the same."
+    )
     queries: List[str] = Field(description="Set of queries to run.")
 
 
@@ -82,7 +84,7 @@ def generate_queries(
     state: BHSRState,
     chat_model: BaseChatModel,
     interactive_user: bool = True,
-    max_queries: int = 5,
+    max_queries: int = 10,
     shared_sections: Optional[List[Section]] = None,
     web_search_tool: Optional[BaseTool] = None,
     spinner: Optional[Halo] = None,
@@ -104,7 +106,12 @@ def generate_queries(
         "information foraging and information literacy to generate the best possible questions. "
         "Use a step-by-step approach and think about the information need and the information "
         "domain before generating the queries. Order the queries by their importance and relevance "
-        "to the main information need of the user.",
+        "to the main information need of the user. Separate different topics or items into different queries as "
+        "you will have a higher chance of finding relevant information. For example when comparing two items, use two queries,"
+        "one for each. If you need to generate a localized query for example an item in a specific country, try "
+        "using the local language of that country. All in all, try to also maximize the chance of finding "
+        "answers to the queries you come up with. Do not include multiple items or vs queries but instead "
+        "separate queries for each item. For example: instead of apple vs banana use two queries; 1. apple price and 2. banana price.",
         other_prompt_sections=shared_sections
         + [
             Section(
@@ -186,6 +193,7 @@ def generate_queries(
                             ],
                         ),
                         Section(name="Current Hypothesis", text=str(state.current_hypothesis)),
+                        Section(name="Feedback for Current Hypothesis From The User", text=str(state.feedback)),
                     ]
                 )
             ),
@@ -196,8 +204,8 @@ def generate_queries(
         chat_messages=chat.get_messages(), chat_model=chat_model, output_schema=QueryGenerationResult
     )
 
-    if state.information_need is None:
-        state.information_need = output.information_need
+    # if state.information_need:
+    state.information_need = output.information_need
 
     if state.queries_to_run is None:
         state.queries_to_run = []
@@ -215,6 +223,7 @@ def search_queries(
     queries_to_run_set = set(state.queries_to_run)
     for query in state.queries_to_run:
         if query in queries_and_answers:
+            queries_to_run_set.remove(query)
             continue
 
         answer = web_search.get_answer(query=query, n_results=n_search_results, spinner=spinner)[1]
@@ -226,6 +235,8 @@ def search_queries(
         state.queries_to_run = list(queries_to_run_set)
 
         yield state
+
+    state.queries_to_run = list(queries_to_run_set)
 
 
 def generate_hypothesis(
