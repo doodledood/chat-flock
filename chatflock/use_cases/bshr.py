@@ -204,8 +204,8 @@ def generate_queries(
         chat_messages=chat.get_messages(), chat_model=chat_model, output_schema=QueryGenerationResult
     )
 
-    # if state.information_need:
-    state.information_need = output.information_need
+    if state.information_need:
+        state.information_need = output.information_need
 
     if state.queries_to_run is None:
         state.queries_to_run = []
